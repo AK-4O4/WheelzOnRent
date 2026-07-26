@@ -1,13 +1,25 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { usePathname } from "next/navigation";
-import AuthModal from "./AuthModal";
+import { usePathname, useRouter } from "next/navigation";
+import AuthModal from "@/components/auth/AuthModal";
+import ProfileDropdown from "@/components/shadcn-studio/blocks/dropdown-profile";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+
+// Simulated auth state — swap with real auth context when ready
+const MOCK_USER = {
+  name: "Jordan Mercer",
+  email: "jordan@example.com",
+  avatar: "https://i.pravatar.cc/80?img=11",
+  initials: "JM",
+};
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [authOpen, setAuthOpen] = useState(false);
+  const [isLoggedIn] = useState(true); // toggle to false to show login button
   const pathname = usePathname();
+  const router = useRouter();
 
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
@@ -16,6 +28,19 @@ export default function Navbar() {
   }, []);
 
   const isActive = (href: string) => pathname === href;
+
+  const avatarTrigger = (
+    <button
+      className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 hover:bg-sky-50 hover:border-sky-300 transition-all overflow-hidden"
+      aria-label="Open account menu"
+      id="navbar-profile-trigger"
+    >
+      <Avatar size="default">
+        <AvatarImage src={MOCK_USER.avatar} alt={MOCK_USER.name} />
+        <AvatarFallback>{MOCK_USER.initials}</AvatarFallback>
+      </Avatar>
+    </button>
+  );
 
   return (
     <>
@@ -97,16 +122,20 @@ export default function Navbar() {
               </svg>
             </button>
 
-            {/* User / auth trigger */}
-            <button
-              onClick={() => setAuthOpen(true)}
-              className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600 hover:bg-sky-50 hover:border-sky-300 hover:text-sky-600 transition-all"
-              aria-label="Sign in or create account"
-            >
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path clipRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" fillRule="evenodd" />
-              </svg>
-            </button>
+            {/* Profile dropdown or sign-in */}
+            {isLoggedIn ? (
+              <ProfileDropdown trigger={avatarTrigger} align="end" />
+            ) : (
+              <button
+                onClick={() => setAuthOpen(true)}
+                className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600 hover:bg-sky-50 hover:border-sky-300 hover:text-sky-600 transition-all"
+                aria-label="Sign in or create account"
+              >
+                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
+                  <path clipRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" fillRule="evenodd" />
+                </svg>
+              </button>
+            )}
           </div>
         </div>
       </header>

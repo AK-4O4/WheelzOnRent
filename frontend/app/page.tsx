@@ -1,12 +1,12 @@
-import Navbar from "@/components/Navbar";
-import Hero from "@/components/Hero";
-import DestinationShowcase from "@/components/DestinationsRow";
-import BaliDeals from "@/components/PopularCarRental";
-import TrustSection from "@/components/Testimonials";
-import HowItWorks from "@/components/HowItWorks";
-import FAQSection from "@/components/FAQ";
-import Newsletter from "@/components/Newsletter";
-import Footer from "@/components/Footer";
+import Navbar from "@/components/layout/Navbar";
+import Hero from "@/components/home/Hero";
+import DestinationShowcase from "@/components/home/DestinationsRow";
+import BaliDeals from "@/components/home/PopularCarRental";
+import TrustSection from "@/components/home/Testimonials";
+import HowItWorks from "@/components/home/HowItWorks";
+import FAQSection from "@/components/home/FAQ";
+import Newsletter from "@/components/home/Newsletter";
+import Footer from "@/components/layout/Footer";
 
 // Social proof bar — extracted from Hero per Section 11.C
 // (pills and stats are banned inside hero, moved below)

@@ -1,4 +1,4 @@
-import { Section } from "./CarCard";
+import { Section } from "@/components/cars/CarCard";
 import { Star } from "lucide-react";
 
 interface DealCardProps {

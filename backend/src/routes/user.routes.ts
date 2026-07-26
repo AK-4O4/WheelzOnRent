@@ -1,8 +1,8 @@
-import { Router } from 'express';
-import { requireAuth } from '../middleware/auth';
-import { validate } from '../middleware/validate';
-import * as userController from '../controllers/userController';
-import { updateProfileSchema } from '../validators/userValidators';
+import { Router } from "express";
+import { requireAuth } from "../middleware/auth.middleware";
+import { validate } from "../middleware/validate.middleware";
+import * as userController from "../controllers/user.controller";
+import { updateProfileSchema } from "../validators/userValidators";
 
 // ---------------------------------------------------------------------------
 // User router
@@ -16,7 +16,7 @@ const router = Router();
  * GET /api/users
  * Returns all users — for dev testing and admin use.
  */
-router.get('/', requireAuth, userController.getAllUsers);
+router.get("/", requireAuth, userController.getAllUsers);
 
 /**
  * GET /api/users/me
@@ -25,7 +25,7 @@ router.get('/', requireAuth, userController.getAllUsers);
  *   requireAuth → verifies JWT, attaches req.user
  *   getMe       → fetches & returns the user's public.users row
  */
-router.get('/me', requireAuth, userController.getMe);
+router.get("/me", requireAuth, userController.getMe);
 
 /**
  * PATCH /api/users/me
@@ -38,6 +38,11 @@ router.get('/me', requireAuth, userController.getMe);
  * Example body:
  *   { "fullName": "Abdullah Khan", "phoneNumber": "+923001234567" }
  */
-router.patch('/me', requireAuth, validate(updateProfileSchema), userController.updateMe);
+router.patch(
+  "/me",
+  requireAuth,
+  validate(updateProfileSchema),
+  userController.updateMe,
+);
 
 export default router;

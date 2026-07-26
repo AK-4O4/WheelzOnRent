@@ -1,4 +1,4 @@
-import { z } from 'zod';
+import { z } from "zod";
 
 // ---------------------------------------------------------------------------
 // Shared Zod schemas for user-related request bodies.
@@ -10,21 +10,18 @@ import { z } from 'zod';
  * All fields are optional — only the provided ones will be updated.
  */
 export const updateProfileSchema = z.object({
-    fullName: z
-        .string()
-        .min(2, 'Full name must be at least 2 characters')
-        .max(100)
-        .optional(),
+  fullName: z
+    .string()
+    .min(2, "Full name must be at least 2 characters")
+    .max(100)
+    .optional(),
 
-    phoneNumber: z
-        .string()
-        .regex(/^\+?[0-9]{7,15}$/, 'Invalid phone number format') // e.g. +923001234567
-        .optional(),
+  phoneNumber: z
+    .string()
+    .regex(/^\+?[0-9]{7,15}$/, "Invalid phone number format") // e.g. +923001234567
+    .optional(),
 
-    profilePictureUrl: z
-        .string()
-        .url('Must be a valid URL')
-        .optional(),
+  profilePictureUrl: z.string().url("Must be a valid URL").optional(),
 });
 
 // TypeScript type inferred from the schema — use this in your controller

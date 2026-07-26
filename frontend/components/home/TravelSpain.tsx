@@ -1,4 +1,4 @@
-import { Section } from "./CarCard";
+import { Section } from "@/components/cars/CarCard";
 
 const spainPhotos = [
   {

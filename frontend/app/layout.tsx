@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Outfit, Playfair_Display } from "next/font/google";
 import "./globals.css";
+import { TooltipProvider } from "@/components/ui/tooltip";
 
 const outfit = Outfit({
   subsets: ["latin"],
@@ -31,7 +32,9 @@ export default function RootLayout({
       lang="en"
       className={`${outfit.variable} ${playfair.variable} h-full antialiased scroll-smooth`}
     >
-      <body className="min-h-full bg-white text-slate-900">{children}</body>
+      <body className="min-h-full bg-white text-slate-900">
+        <TooltipProvider>{children}</TooltipProvider>
+      </body>
     </html>
   );
 }

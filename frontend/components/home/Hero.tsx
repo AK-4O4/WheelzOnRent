@@ -1,6 +1,7 @@
 "use client";
 import { Separator } from "@base-ui/react";
 import { useState } from "react";
+import { Calendar } from "@/components/ui/calendar";
 
 export default function Hero() {
   const [dropMode, setDropMode] = useState<"different" | "same">("different");
@@ -84,21 +85,19 @@ export default function Hero() {
           <div className="flex gap-2 mb-4">
             <button
               onClick={() => setDropMode("different")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                dropMode === "different"
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-500 border border-slate-200 hover:border-slate-400"
-              }`}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${dropMode === "different"
+                ? "bg-slate-900 text-white"
+                : "text-slate-500 border border-slate-200 hover:border-slate-400"
+                }`}
             >
               Different drop off
             </button>
             <button
               onClick={() => setDropMode("same")}
-              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${
-                dropMode === "same"
-                  ? "bg-slate-900 text-white"
-                  : "text-slate-500 border border-slate-200 hover:border-slate-400"
-              }`}
+              className={`px-4 py-1.5 rounded-full text-sm font-medium transition-all ${dropMode === "same"
+                ? "bg-slate-900 text-white"
+                : "text-slate-500 border border-slate-200 hover:border-slate-400"
+                }`}
             >
               Same drop off
             </button>

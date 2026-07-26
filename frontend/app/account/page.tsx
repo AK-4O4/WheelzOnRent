@@ -1,9 +1,16 @@
 "use client";
-import Navbar from "@/components/Navbar";
-import Footer from "@/components/Footer";
+import { Suspense } from "react";
+import Navbar from "@/components/layout/Navbar";
+import Footer from "@/components/layout/Footer";
 import Link from "next/link";
 import { useState } from "react";
 import { useSearchParams } from "next/navigation";
+import { Separator } from "@/components/ui/separator";
+import PersonalInfo from "@/components/shadcn-studio/blocks/account-settings-01/content/personal-info";
+import EmailPass from "@/components/shadcn-studio/blocks/account-settings-01/content/email-password";
+import ConnectAccount from "@/components/shadcn-studio/blocks/account-settings-01/content/connect-account";
+import SocialUrl from "@/components/shadcn-studio/blocks/account-settings-01/content/social-url";
+import DangerZone from "@/components/shadcn-studio/blocks/account-settings-01/content/danger-zone";
 
 const TABS = [
   { id: "profile", label: "Profile" },
@@ -21,24 +28,15 @@ const MOCK_LISTINGS = [
   { id: 1, car: "Toyota Camry 2022", price: 65, status: "Active", bookings: 12, earnings: 840, image: "https://lh3.googleusercontent.com/aida/AP1WRLtU7WwqDZ7QoZY00BfQvmDtawSKmGOlSi1r8FBQZt4O2sF5K9p7uWTCBL7ldkGDGC2NXsfD0vcZbFIuTL8YqBvVCUMBLCm7l69PL_gGY2I2lbA3DYLtx5Qxbh4N0wyrw-VbPH7CzlOveaMPOvxGifSN4NukzBPgikFI9umSRNfF58GF0RyQkhYobzr-vILy4QKXPJwRAZHGd_oM5zcvCFc-RgSXzR5iobyYBSscL7fl7wX9Eyu2Wz6JfTY" },
 ];
 
-export default function AccountPage() {
+function AccountPageInner() {
   const searchParams = useSearchParams();
   const initialTab = searchParams?.get("tab") ?? "profile";
   const [activeTab, setActiveTab] = useState(
     TABS.find((t) => t.id === initialTab) ? initialTab : "profile"
   );
 
-  // Profile form state
-  const [name, setName] = useState("Jordan Mercer");
-  const [email, setEmail] = useState("jordan@example.com");
-  const [phone, setPhone] = useState("+1 (555) 234 5678");
-  const [saved, setSaved] = useState(false);
-
-  const handleSave = (e: React.FormEvent) => {
-    e.preventDefault();
-    setSaved(true);
-    setTimeout(() => setSaved(false), 2000);
-  };
+  const name = "Jordan Mercer";
+  const email = "jordan@example.com";
 
   return (
     <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
@@ -94,7 +92,7 @@ export default function AccountPage() {
           {/* Main content */}
           <div className="flex-1 min-w-0">
 
-            {/* Profile */}
+            {/* Profile — now uses the rich account-settings-01 block */}
             {activeTab === "profile" && (
               <div>
                 <h1
@@ -103,59 +101,13 @@ export default function AccountPage() {
                 >
                   Profile details
                 </h1>
-                <form onSubmit={handleSave} className="max-w-xl space-y-5">
-                  <div>
-                    <label htmlFor="profile-name" className="block text-xs font-semibold text-slate-600 mb-1.5">Full name</label>
-                    <input
-                      id="profile-name"
-                      name="name"
-                      type="text"
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="profile-email" className="block text-xs font-semibold text-slate-600 mb-1.5">Email address</label>
-                    <input
-                      id="profile-email"
-                      name="email"
-                      type="email"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                      className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all"
-                    />
-                  </div>
-                  <div>
-                    <label htmlFor="profile-phone" className="block text-xs font-semibold text-slate-600 mb-1.5">Phone number</label>
-                    <input
-                      id="profile-phone"
-                      name="phone"
-                      type="tel"
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      className="w-full border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-400 transition-all"
-                    />
-                  </div>
-
-                  <div className="flex items-center gap-3 pt-2">
-                    <button
-                      type="submit"
-                      id="profile-save-btn"
-                      className="bg-sky-600 hover:bg-sky-700 active:scale-[0.98] text-white font-semibold px-6 py-3 rounded-xl text-sm transition-all"
-                    >
-                      Save changes
-                    </button>
-                    {saved && (
-                      <span className="text-emerald-600 text-sm font-medium flex items-center gap-1">
-                        <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                          <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                        </svg>
-                        Saved
-                      </span>
-                    )}
-                  </div>
-                </form>
+                <PersonalInfo />
+                <Separator className="my-10" />
+                <EmailPass />
+                <Separator className="my-10" />
+                <ConnectAccount />
+                <Separator className="my-10" />
+                <SocialUrl />
               </div>
             )}
 
@@ -251,7 +203,7 @@ export default function AccountPage() {
               </div>
             )}
 
-            {/* Settings */}
+            {/* Settings — rich account-settings-01 block */}
             {activeTab === "settings" && (
               <div>
                 <h1
@@ -260,38 +212,7 @@ export default function AccountPage() {
                 >
                   Settings
                 </h1>
-                <div className="max-w-xl space-y-6">
-                  <div className="border border-slate-100 rounded-2xl divide-y divide-slate-100">
-                    {[
-                      { label: "Email notifications", desc: "Receive booking confirmations and updates" },
-                      { label: "SMS alerts", desc: "Get text alerts for urgent booking changes" },
-                      { label: "Marketing emails", desc: "Weekly deals and platform news" },
-                    ].map((item, i) => (
-                      <div key={i} className="flex items-center justify-between p-4">
-                        <div>
-                          <p className="text-sm font-medium text-slate-800">{item.label}</p>
-                          <p className="text-xs text-slate-400 mt-0.5">{item.desc}</p>
-                        </div>
-                        <button
-                          className="w-11 h-6 bg-sky-600 rounded-full relative transition-colors"
-                          role="switch"
-                          aria-checked="true"
-                          aria-label={item.label}
-                        >
-                          <span className="absolute right-1 top-1 w-4 h-4 bg-white rounded-full shadow-sm" />
-                        </button>
-                      </div>
-                    ))}
-                  </div>
-
-                  <div className="border border-red-100 rounded-2xl p-4">
-                    <p className="text-sm font-medium text-red-700 mb-1">Danger zone</p>
-                    <p className="text-xs text-slate-400 mb-3">Permanently delete your account and all associated data.</p>
-                    <button className="text-sm font-semibold text-red-600 border border-red-200 px-4 py-2 rounded-lg hover:bg-red-50 transition-colors">
-                      Delete account
-                    </button>
-                  </div>
-                </div>
+                <DangerZone />
               </div>
             )}
 
@@ -301,5 +222,13 @@ export default function AccountPage() {
 
       <Footer />
     </div>
+  );
+}
+
+export default function AccountPage() {
+  return (
+    <Suspense>
+      <AccountPageInner />
+    </Suspense>
   );
 }
