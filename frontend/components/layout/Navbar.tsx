@@ -1,10 +1,10 @@
 "use client";
 import Link from "next/link";
 import { useState, useEffect } from "react";
-import { usePathname, useRouter } from "next/navigation";
-import AuthModal from "@/components/auth/AuthModal";
+import { usePathname } from "next/navigation";
 import ProfileDropdown from "@/components/shadcn-studio/blocks/dropdown-profile";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import { supabase } from "@/lib/supabase";
 
 const DEFAULT_AVATAR = (seed: string) =>
@@ -18,9 +18,8 @@ interface NavUser {
 }
 
 export default function Navbar() {
-  const [scrolled, setScrolled]   = useState(false);
-  const [authOpen, setAuthOpen]   = useState(false);
-  const [navUser, setNavUser]     = useState<NavUser | null>(null); // null = not logged in / loading
+  const [scrolled, setScrolled] = useState(false);
+  const [navUser, setNavUser] = useState<NavUser | null>(null); // null = not logged in / loading
   const pathname = usePathname();
 
   // ── Scroll shadow ─────────────────────────────────────────────────────────
@@ -43,19 +42,19 @@ export default function Navbar() {
           { headers: { Authorization: `Bearer ${session.access_token}` } }
         );
         const json = await res.json();
-        const u    = json.data;
+        const u = json.data;
 
-        const name    = u.fullName || session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "You";
-        const email   = u.email   || session.user.email || "";
+        const name = u.fullName || session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "You";
+        const email = u.email || session.user.email || "";
         const initials = name.split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase();
-        const avatar  = u.profilePictureUrl || DEFAULT_AVATAR(initials);
+        const avatar = u.profilePictureUrl || DEFAULT_AVATAR(initials);
 
         setNavUser({ name, email, avatar, initials });
       } catch {
         // Fall back to Supabase session metadata
-        const meta    = session.user.user_metadata;
-        const name    = meta?.full_name || session.user.email?.split("@")[0] || "You";
-        const email   = session.user.email || "";
+        const meta = session.user.user_metadata;
+        const name = meta?.full_name || session.user.email?.split("@")[0] || "You";
+        const email = session.user.email || "";
         const initials = name.split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase();
         setNavUser({ name, email, avatar: DEFAULT_AVATAR(initials), initials });
       }
@@ -92,11 +91,10 @@ export default function Navbar() {
   return (
     <>
       <header
-        className={`sticky top-0 z-50 transition-all duration-300 ${
-          scrolled
-            ? "bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm"
-            : "bg-transparent"
-        }`}
+        className={`sticky top-0 z-50 transition-all duration-300 ${scrolled
+          ? "bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-sm"
+          : "bg-transparent"
+          }`}
         data-purpose="main-navigation"
       >
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
@@ -116,9 +114,8 @@ export default function Navbar() {
           <nav className="hidden md:flex items-center gap-0.5 bg-slate-50 border border-slate-200 rounded-full px-2 py-1.5 text-sm font-medium text-slate-600">
             <Link
               href="/"
-              className={`px-5 py-1.5 rounded-full transition-all whitespace-nowrap ${
-                isActive("/") ? "bg-white shadow-sm text-slate-900" : "hover:bg-white hover:shadow-sm"
-              }`}
+              className={`px-5 py-1.5 rounded-full transition-all whitespace-nowrap ${isActive("/") ? "bg-white shadow-sm text-slate-900" : "hover:bg-white hover:shadow-sm"
+                }`}
             >
               Home
             </Link>
@@ -136,9 +133,8 @@ export default function Navbar() {
             </button>
             <Link
               href="/cars"
-              className={`px-5 py-1.5 rounded-full transition-all whitespace-nowrap ${
-                isActive("/cars") ? "bg-white shadow-sm text-slate-900" : "hover:bg-white hover:shadow-sm"
-              }`}
+              className={`px-5 py-1.5 rounded-full transition-all whitespace-nowrap ${isActive("/cars") ? "bg-white shadow-sm text-slate-900" : "hover:bg-white hover:shadow-sm"
+                }`}
             >
               Search
             </Link>
@@ -150,7 +146,7 @@ export default function Navbar() {
               href="/account?tab=listings"
               className="hidden sm:block text-sm font-medium text-sky-600 hover:text-sky-700 transition-colors whitespace-nowrap"
             >
-              List your property
+              Become a host
             </Link>
 
             {/* Globe */}
@@ -165,25 +161,32 @@ export default function Navbar() {
               </svg>
             </button>
 
-            {/* Profile dropdown (logged in) or Sign-in button */}
+            {/* Profile dropdown (logged in) or Login / Sign-up buttons */}
             {navUser ? (
               <ProfileDropdown trigger={avatarTrigger} align="end" user={navUser} />
             ) : (
-              <button
-                onClick={() => setAuthOpen(true)}
-                className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 text-slate-600 hover:bg-sky-50 hover:border-sky-300 hover:text-sky-600 transition-all"
-                aria-label="Sign in or create account"
-              >
-                <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                  <path clipRule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" fillRule="evenodd" />
-                </svg>
-              </button>
+              <div className="flex items-center gap-2">
+                <Button
+                  asChild
+                  variant="outline"
+                  size="sm"
+                  className="rounded-full border-slate-200 text-slate-700 hover:border-sky-300 hover:text-sky-600 hover:bg-sky-50 p-4"
+                >
+                  <Link href="/login">Log in</Link>
+                </Button>
+                <Button
+                  asChild
+                  size="sm"
+                  className="rounded-full p-4"
+                >
+                  <Link href="/register">Sign up</Link>
+                </Button>
+              </div>
             )}
           </div>
         </div>
       </header>
 
-      <AuthModal isOpen={authOpen} onClose={() => setAuthOpen(false)} />
     </>
   );
 }

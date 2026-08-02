@@ -13,7 +13,7 @@ import Footer from "@/components/layout/Footer";
 function SocialProofBar() {
   return (
     <div className="border-b border-slate-100 bg-white">
-      <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center gap-6">
+      <div className="max-w-7xl mx-auto px-6 py-5 flex flex-wrap items-center justify-center gap-6">
         <div className="flex items-center gap-3">
           <div className="flex -space-x-2">
             {["img=3", "img=5", "img=8"].map((seed) => (
@@ -25,16 +25,16 @@ function SocialProofBar() {
               />
             ))}
           </div>
-          <span className="text-sm text-slate-500 font-medium">1M+ hosts signed up</span>
+          <span className="text-sm text-slate-500 font-medium">50K+ hosts across Pakistan</span>
         </div>
         <div className="h-4 w-px bg-slate-200 hidden sm:block" aria-hidden="true" />
         <div className="flex items-center gap-2">
           <span className="text-amber-400">★</span>
-          <span className="text-sm font-semibold text-slate-700">4.9</span>
-          <span className="text-sm text-slate-500">average rating · 25K+ reviews</span>
+          <span className="text-sm font-semibold text-slate-700">4.8</span>
+          <span className="text-sm text-slate-500">average rating · 50K+ reviews</span>
         </div>
         <div className="h-4 w-px bg-slate-200 hidden sm:block" aria-hidden="true" />
-        <span className="text-sm text-slate-500 font-medium">Zero hidden fees</span>
+        <span className="text-sm text-slate-500 font-medium">Pay in PKR · No hidden fees</span>
       </div>
     </div>
   );

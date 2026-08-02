@@ -4,22 +4,22 @@ import Link from "next/link";
 
 const DESTINATIONS = [
   {
-    city: "London",
-    country: "United Kingdom",
-    count: "5,120+",
-    image: "https://lh3.googleusercontent.com/aida/AP1WRLsnTIXeoXQhFqUDPD_Ag1cArzU3oqF_paXggSmsDduziJPb3r51Ycj8Nd55ymMaRM8kv7lVb0KcV79HO3I669eO95MfPu7BNe1uljRLBSU4tkAX5vUHnFD8mMFkc3Jh2pSWGPb6ZJmWNprotvhnrZJUgQJXIvjF2D48AOw8q8pg9noAb1jEqbMd86Dc861hRZIo1StMq3XUJ4eMvKR2uCviKYu1Z5sXcqjpfwWuVPVCHxZsD1tyy4CFfiI",
+    city: "Karachi",
+    country: "Pakistan",
+    count: "2,400+",
+    image: "https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=1200&q=80",
   },
   {
-    city: "Tokyo",
-    country: "Japan",
-    count: "5,880+",
-    image: "https://lh3.googleusercontent.com/aida/AP1WRLsAj9xybKYFkzSSbl6G4Td8d0fh9SfxKGoLDHAuMngvG6q0qsKeSx2jA2Wnoyn_QYa8ZjvI9dtEorb_mspc3uKeYfpFZyqhbsczFbCNzNrjUktvgnsg9fK8tAEHbGUqulKm-V_jElmHjvzZw8EUwvovffM2PBKplOVf2QacYOr-Nuqb0EIcR7zn0i_oyDzC9HRrlLDWXiBwFUbDKDfd2R-iLXJFclBUl7PqD5too8reD4T19THiqfrNtirT",
+    city: "Lahore",
+    country: "Pakistan",
+    count: "1,870+",
+    image: "https://images.unsplash.com/photo-1609710228159-0fa9bd7c0827?w=1200&q=80",
   },
   {
-    city: "Rome",
-    country: "Italy",
-    count: "3,340+",
-    image: "https://lh3.googleusercontent.com/aida/AP1WRLtoHGDZ4w48CkRHAO9iBOfM9xNqMSsJTilCfdP2T5vP45yWHj0htA1_ctCvEGmkV_wn7xWeGFtfa4ZeDoPXS-vIkiFrOnw6AHbUeEnJnnRGLnNDomwEDaPUvIZUEuee1dKNfqCw1ESZXWj08YqOTquY5d8GMmEElTT_k6GmfldNNxWHTNX0yV2o0QiUhQ39XA2eoavgnUyQTIZ7GiIaEMxcT-F5hZJOcf1JC27MvhjxLK2DT4fOLJwduBs",
+    city: "Islamabad",
+    country: "Pakistan",
+    count: "980+",
+    image: "https://images.unsplash.com/photo-1567416661576-659d50397f04?w=1200&q=80",
   },
 ];
 
@@ -34,7 +34,7 @@ export default function DestinationShowcase() {
             className="text-4xl md:text-5xl font-normal text-slate-900 leading-tight max-w-xs"
             style={{ fontFamily: "var(--font-playfair), 'Playfair Display', serif" }}
           >
-            Top destinations
+            Cities across Pakistan
           </h2>
           <Link
             href="/cars"
@@ -45,10 +45,11 @@ export default function DestinationShowcase() {
         </div>
 
         {/* Horizontal Accordion (Section 10 vocabulary) */}
-        <div className="flex gap-3 h-[420px] overflow-hidden rounded-2xl">
+        <div className="flex gap-3 h-105 overflow-hidden rounded-2xl">
           {DESTINATIONS.map((dest, i) => (
-            <div
+            <Link
               key={dest.city}
+              href={`/cars?city=${encodeURIComponent(dest.city)}`}
               className="relative overflow-hidden rounded-2xl cursor-pointer group transition-all duration-500 ease-out"
               style={{ flex: active === i ? "3.5" : active === null ? "1" : "0.6" }}
               onMouseEnter={() => setActive(i)}
@@ -59,7 +60,7 @@ export default function DestinationShowcase() {
                 alt={`${dest.city}, ${dest.country}`}
                 className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent" />
+              <div className="absolute inset-0 bg-linear-to-t from-black/70 via-black/20 to-transparent" />
 
               {/* Content */}
               <div className="absolute bottom-0 left-0 right-0 p-6">
@@ -93,7 +94,7 @@ export default function DestinationShowcase() {
                   </p>
                 </div>
               )}
-            </div>
+            </Link>
           ))}
         </div>
       </div>

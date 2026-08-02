@@ -25,9 +25,17 @@ const MOCK_RENTALS = [
   { id: 2, car: "Tesla Model 3", location: "Seattle, WA", dates: "Aug 2 - Aug 5, 2026", status: "Upcoming", price: 336, image: "https://lh3.googleusercontent.com/aida/AP1WRLuVokeoWVVYiqP0zjQP7SzdFdxq45V2XM7q6Nq6zeSW7TikYgoRkO2BdLbGLY4tMO4PI0-A8ePstZZhTDap88UXOJ_9btZLO_qH164Z9y0vhmUhAhTp96dxW6hngwSfpxiZvkT4DCmEcGgi6RIx6zFN0uU-x_g9Z9WjtnGn-YqZ-NYnhpKNSqvFr2gn1DQ1qIqmQw7yp1TTOJzKXRjgniZLkOEErffw9PyoR0YeIioI727i_ngGOmhCgfuW" },
 ];
 
-const MOCK_LISTINGS = [
-  { id: 1, car: "Toyota Camry 2022", price: 65, status: "Active", bookings: 12, earnings: 840, image: "https://lh3.googleusercontent.com/aida/AP1WRLtU7WwqDZ7QoZY00BfQvmDtawSKmGOlSi1r8FBQZt4O2sF5K9p7uWTCBL7ldkGDGC2NXsfD0vcZbFIuTL8YqBvVCUMBLCm7l69PL_gGY2I2lbA3DYLtx5Qxbh4N0wyrw-VbPH7CzlOveaMPOvxGifSN4NukzBPgikFI9umSRNfF58GF0RyQkhYobzr-vILy4QKXPJwRAZHGd_oM5zcvCFc-RgSXzR5iobyYBSscL7fl7wX9Eyu2Wz6JfTY" },
-];
+// ─── Types ───────────────────────────────────────────────────────────────────
+interface MyListing {
+  id: string;
+  make: string;
+  model: string;
+  year: number;
+  city: string;
+  dailyRate: string;
+  status: string;
+  primaryImage: string | null;
+}
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 interface UserProfile {
@@ -61,8 +69,8 @@ function AccountPageInner() {
 
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [loadingProfile, setLoadingProfile] = useState(true);
-  // Live avatar — updated immediately when PersonalInfo saves a new photo
-  const [liveAvatar, setLiveAvatar] = useState<string | null>(null);
+  const [listings, setListings] = useState<MyListing[]>([]);
+  const [loadingListings, setLoadingListings] = useState(false);
 
   useEffect(() => {
     async function fetchProfile() {
@@ -120,9 +128,34 @@ function AccountPageInner() {
     fetchProfile();
   }, [router]);
 
+  // Fetch my listings when that tab becomes active
+  useEffect(() => {
+    if (activeTab !== "listings") return;
+    async function fetchListings() {
+      setLoadingListings(true);
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return;
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"}/api/vehicles/mine`,
+          { headers: { Authorization: `Bearer ${session.access_token}` } }
+        );
+        if (!res.ok) throw new Error(`${res.status}`);
+        const json = await res.json();
+        setListings(json.data ?? []);
+      } catch (e) {
+        console.error("Failed to load listings", e);
+      } finally {
+        setLoadingListings(false);
+      }
+    }
+    fetchListings();
+  }, [activeTab]);
+
   const displayName = profile?.fullName ?? profile?.email?.split("@")[0] ?? "You";
   const displayEmail = profile?.email ?? "";
   // liveAvatar is set instantly after upload; falls back to saved URL, then DiceBear default
+  const [liveAvatar, setLiveAvatar] = useState<string | null>(null);
   const initials = encodeURIComponent((displayName ?? "User").slice(0, 2));
   const avatarSrc =
     liveAvatar ??
@@ -265,32 +298,59 @@ function AccountPageInner() {
                     Add a car
                   </button>
                 </div>
-                <div className="space-y-4">
-                  {MOCK_LISTINGS.map((l) => (
-                    <div key={l.id} className="flex flex-col sm:flex-row gap-4 p-4 border border-slate-100 rounded-2xl hover:shadow-sm transition-shadow">
-                      <div className="w-full sm:w-32 h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100">
-                        <img src={l.image} alt={l.car} className="w-full h-full object-cover" />
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-start justify-between gap-2">
-                          <div>
-                            <p className="font-semibold text-slate-900">{l.car}</p>
-                            <p className="text-sky-600 font-semibold text-sm mt-0.5">${l.price} / day</p>
-                          </div>
-                          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700">{l.status}</span>
-                        </div>
-                        <div className="flex items-center gap-6 mt-3 text-sm text-slate-500">
-                          <span>{l.bookings} bookings</span>
-                          <span className="font-semibold text-slate-700">${l.earnings} earned</span>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
 
-                {MOCK_LISTINGS.length === 0 && (
+                {loadingListings ? (
+                  <div className="space-y-4">
+                    {[0, 1, 2].map(i => (
+                      <div key={i} className="flex gap-4 p-4 border border-slate-100 rounded-2xl animate-pulse">
+                        <div className="w-32 h-24 rounded-xl bg-slate-100 shrink-0" />
+                        <div className="flex-1 space-y-3 pt-1">
+                          <div className="h-4 bg-slate-100 rounded w-1/3" />
+                          <div className="h-3 bg-slate-100 rounded w-1/4" />
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : listings.length === 0 ? (
                   <div className="flex flex-col items-center justify-center py-24 gap-4 text-slate-400">
-                    <p className="text-base">No listings yet. Add your first car to start earning.</p>
+                    <svg className="w-12 h-12 opacity-25" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.5">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12" />
+                    </svg>
+                    <p className="text-base font-medium text-slate-600">No listings yet.</p>
+                    <p className="text-sm">Add your first car to start earning.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    {listings.map((l) => {
+                      const placeholder = `https://api.dicebear.com/9.x/shapes/svg?seed=${l.id}&backgroundColor=e2e8f0`;
+                      const statusColor = l.status === "active"
+                        ? "bg-emerald-50 text-emerald-700"
+                        : l.status === "under_review"
+                        ? "bg-amber-50 text-amber-700"
+                        : "bg-slate-100 text-slate-600";
+                      return (
+                        <div key={l.id} className="flex flex-col sm:flex-row gap-4 p-4 border border-slate-100 rounded-2xl hover:shadow-sm transition-shadow">
+                          <div className="w-full sm:w-32 h-24 rounded-xl overflow-hidden shrink-0 bg-slate-100">
+                            <img src={l.primaryImage ?? placeholder} alt={`${l.year} ${l.make} ${l.model}`} className="w-full h-full object-cover" />
+                          </div>
+                          <div className="flex-1">
+                            <div className="flex items-start justify-between gap-2">
+                              <div>
+                                <p className="font-semibold text-slate-900">{l.year} {l.make} {l.model}</p>
+                                <p className="text-slate-400 text-sm">{l.city}</p>
+                                <p className="text-sky-600 font-semibold text-sm mt-0.5">PKR {parseFloat(l.dailyRate).toLocaleString()} / day</p>
+                              </div>
+                              <span className={`text-xs font-semibold px-2.5 py-1 rounded-full capitalize ${statusColor}`}>
+                                {l.status.replace("_", " ")}
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-4 mt-3">
+                              <Link href={`/cars/${l.id}`} className="text-sm text-sky-600 font-medium hover:underline">View listing</Link>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })}
                   </div>
                 )}
               </div>

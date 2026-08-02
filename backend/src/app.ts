@@ -5,7 +5,7 @@ import helmet from "helmet";
 
 import { env } from "./config/env.ts";
 import { errorHandler } from "./middleware/errorHandler.middleware.ts";
-import { userRoutes } from "./routes";
+import { userRoutes, vehicleRoutes } from "./routes";
 
 export const app = express();
 
@@ -84,8 +84,8 @@ app.get("/health", (_req, res) => {
 // Authentication is enforced inside each router — not globally here —
 // so we can mix public and protected routes within the same router file.
 // ---------------------------------------------------------------------------
-app.use("/api/users", userRoutes);
-// app.use('/api/vehicles', vehicleRoutes);
+app.use("/api/users",    userRoutes);
+app.use("/api/vehicles", vehicleRoutes);
 
 // Add new routers here as you build them out:
 // app.use('/api/bookings', bookingRoutes);

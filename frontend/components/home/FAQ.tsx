@@ -3,23 +3,23 @@ import { useState } from "react";
 
 const faqs = [
   {
-    q: "Is my place right for Ceepii?",
-    a: "Many travelers choose accommodations near downtown West Palm Beach, in the historic districts, or around Northwood Village for a local experience.",
+    q: "Which cities in Pakistan can I rent a car from?",
+    a: "Ceepii has vehicles available across Pakistan's major cities including Karachi, Lahore, Islamabad, Rawalpindi, Peshawar, Multan, and Faisalabad. More cities are being added regularly as we grow our host network.",
     defaultOpen: true,
   },
   {
-    q: "What are Ceepii's fees?",
-    a: "Information about service fees and booking costs.",
+    q: "What documents do I need to rent a car?",
+    a: "You'll need a valid Pakistani CNIC (national identity card) and a valid driving licence. International visitors need their passport along with an International Driving Permit (IDP). All documents are verified securely through our platform.",
     defaultOpen: false,
   },
   {
-    q: "Baggage delay or loss?",
-    a: "Support policies for travel incidents.",
+    q: "How are payments handled? Is it safe?",
+    a: "All payments are processed securely through our platform. We support bank transfers and card payments. Hosts receive their payout after the trip is completed. A refundable security deposit is held at the time of booking and returned within 48 hours of trip completion.",
     defaultOpen: false,
   },
   {
-    q: "How do I get started?",
-    a: "Step-by-step guide to hosting.",
+    q: "What if the car breaks down during my trip?",
+    a: "Ceepii's 24/7 roadside support is available throughout Pakistan. If you face any issues during your trip, contact us immediately and we'll coordinate assistance. All vehicles on our platform are required to carry valid insurance and registration.",
     defaultOpen: false,
   },
 ];
@@ -46,7 +46,7 @@ export default function FAQSection() {
                 <img
                   alt="FAQ decorative - colorful building with flowers"
                   className="w-full h-[850px] object-cover"
-                  src="https://lh3.googleusercontent.com/aida/AP1WRLtMzD8eIgavZVOhzxbrjQP542HXU5rlP9vlEj7yVdJAWR3Ml45TSb8C65HSTc6hBb-QFCi3DW2UVNZYFbs9XbkoMoEusHn_Xkm8McIg5dTyQ73nWdLnCFReHOcPtanFPrmnMA86j1sHgzczMFYERhrYGtlQz8_lckkixXNA3YV5Xd4Qese6hlS8NZoGocr1hM-coriZXVn-2GHN8BQKme1BzZJTo9hy945aePK6u60Ro832TaEA8wBxCRnT"
+                  src="faq.jpg"
                 />
               </div>
 

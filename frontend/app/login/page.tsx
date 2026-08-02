@@ -1,3 +1,4 @@
+import Navbar from "@/components/layout/Navbar";
 import Login from "@/components/shadcn-studio/blocks/login-page-01/login-page-01";
 
 export const metadata = {
@@ -6,5 +7,10 @@ export const metadata = {
 };
 
 export default function LoginPage() {
-  return <Login />;
+  return (
+    <>
+      <Navbar />
+      <Login />
+    </>
+  );
 }

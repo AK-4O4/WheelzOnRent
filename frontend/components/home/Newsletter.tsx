@@ -8,11 +8,11 @@ export default function Newsletter() {
   return (
     <section className="py-32 md:py-40 bg-white" data-purpose="newsletter-signup">
       <div className="max-w-7xl mx-auto px-6">
-        <div className="relative rounded-3xl overflow-hidden bg-sky-600 py-20 px-12 text-center text-white">
+        <div className="relative rounded-3xl overflow-hidden py-20 px-12 text-center text-white">
           <img
             alt=""
             aria-hidden="true"
-            className="absolute inset-0 w-full h-full object-cover opacity-20 mix-blend-luminosity"
+            className="absolute inset-0 w-full h-full object-cover"
             src="https://picsum.photos/seed/open-highway-aerial/1920/600"
           />
           <div className="relative z-10 max-w-xl mx-auto">

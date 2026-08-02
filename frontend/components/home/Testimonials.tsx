@@ -4,9 +4,9 @@ const QUOTES = [
   {
     id: 1,
     quote:
-      "Booking was seamless, the car was spotless, and I got exactly what I paid for. No surprises. That's rare.",
-    author: "Marcus Thorn",
-    role: "Renter, Los Angeles",
+      "Booked a car for a Lahore trip in under 5 minutes. The Honda Civic was spotless and the host was super responsive. No hidden charges whatsoever.",
+    author: "Hamza Raza",
+    role: "Renter, Islamabad",
     avatar: "https://i.pravatar.cc/80?img=3",
     stat: "4.9",
     statLabel: "average rating",
@@ -14,21 +14,21 @@ const QUOTES = [
   {
     id: 2,
     quote:
-      "Listed my car during a month I wasn't using it and earned $840. The payout process is fast and transparent.",
-    author: "Layla Osei",
-    role: "Host, Atlanta",
+      "My Corolla was sitting idle for weeks. Listed it on Ceepii and earned PKR 45,000 in the first month alone. Payouts hit my account on time.",
+    author: "Ayesha Malik",
+    role: "Host, Karachi",
     avatar: "https://i.pravatar.cc/80?img=5",
-    stat: "$840",
+    stat: "PKR 45K",
     statLabel: "earned in one month",
   },
   {
     id: 3,
     quote:
-      "I've tried four rental platforms. Ceepii is the only one where the car actually matched the photos.",
-    author: "James Kwan",
-    role: "Renter, Seattle",
+      "I've used other platforms but Ceepii is the only one where the photos match the actual car. Great experience from pick-up to drop-off.",
+    author: "Bilal Ahmed",
+    role: "Renter, Lahore",
     avatar: "https://i.pravatar.cc/80?img=8",
-    stat: "94k+",
+    stat: "50k+",
     statLabel: "verified reviews",
   },
 ];
@@ -54,9 +54,9 @@ export default function TrustSection() {
         {/* Stats row */}
         <div className="grid grid-cols-3 gap-6 mb-20 border-b border-slate-800 pb-16">
           {[
-            { val: "$1.5B+", label: "earned by hosts, all-time" },
-            { val: "10M+", label: "guest arrivals" },
-            { val: "4.9", label: "average renter rating" },
+            { val: "PKR 2B+", label: "earned by hosts, all-time" },
+            { val: "500K+", label: "trips completed" },
+            { val: "4.8", label: "average renter rating" },
           ].map(({ val, label }) => (
             <div key={val}>
               <p

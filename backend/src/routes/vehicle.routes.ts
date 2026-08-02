@@ -1,10 +1,19 @@
-// import { Router } from "express";
-// import { requireAuth } from "../middleware/auth.middleware";
-// import * as vehicleController from "../controllers/vehicle.controller";
+import { Router } from "express";
+import { requireAuth } from "../middleware/auth.middleware";
+import { validate } from "../middleware/validate.middleware";
+import { createVehicleSchema, updateVehicleSchema } from "../validators/vehicleValidators";
+import * as vehicleController from "../controllers/vehicle.controller";
 
-// const router = Router();
+const router = Router();
 
-// router.get("/", requireAuth, vehicleController.getAllVehicles);
-// router.get("/:id", requireAuth, vehicleController.getVehicleById);
+// Public routes 
+router.get("/", vehicleController.getAllVehicles);
+router.get("/:id", vehicleController.getVehicleById);
 
-// export default router;
+// Authenticated routes
+router.get("/mine", requireAuth, vehicleController.getMyVehicles);
+router.post("/", requireAuth, validate(createVehicleSchema), vehicleController.createVehicle);
+router.patch("/:id", requireAuth, validate(updateVehicleSchema), vehicleController.updateVehicle);
+router.delete("/:id", requireAuth, vehicleController.deleteVehicle);
+
+export default router;
