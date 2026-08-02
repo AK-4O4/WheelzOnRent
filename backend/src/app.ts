@@ -5,7 +5,7 @@ import helmet from "helmet";
 
 import { env } from "./config/env.ts";
 import { errorHandler } from "./middleware/errorHandler.middleware.ts";
-import { userRoutes, vehicleRoutes } from "./routes";
+import { userRoutes } from "./routes";
 
 export const app = express();
 
@@ -38,14 +38,14 @@ app.use(
     origin:
       env.allowedOrigins.length > 0
         ? (origin, callback) => {
-            // Allow requests with no origin (mobile native, Postman, curl)
-            if (!origin) return callback(null, true);
-            // Allow whitelisted browser origins
-            if (env.allowedOrigins.includes(origin))
-              return callback(null, true);
-            // Block anything else
-            callback(new Error(`CORS: origin ${origin} not allowed`));
-          }
+          // Allow requests with no origin (mobile native, Postman, curl)
+          if (!origin) return callback(null, true);
+          // Allow whitelisted browser origins
+          if (env.allowedOrigins.includes(origin))
+            return callback(null, true);
+          // Block anything else
+          callback(new Error(`CORS: origin ${origin} not allowed`));
+        }
         : true, // true = mirror whatever origin is sent (dev-only permissive mode)
 
     // Allow the Authorization header so our Bearer tokens pass through
@@ -85,7 +85,7 @@ app.get("/health", (_req, res) => {
 // so we can mix public and protected routes within the same router file.
 // ---------------------------------------------------------------------------
 app.use("/api/users", userRoutes);
-app.use('/api/vehicles', vehicleRoutes);
+// app.use('/api/vehicles', vehicleRoutes);
 
 // Add new routers here as you build them out:
 // app.use('/api/bookings', bookingRoutes);

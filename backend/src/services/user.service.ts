@@ -12,11 +12,18 @@ import { AppError } from "../middleware/errorHandler.middleware";
 
 /**
  * Fetch the public profile for a given user ID.
+ * If the row doesn't exist yet in public.users (race condition on first login
+ * before the DB trigger fired), returns null instead of throwing.
  *
- * @param userId - The UUID from req.user.id (mirrors public.users.id)
- * @throws AppError(404) if the user row doesn't exist in public.users yet
+ * @param userId  - The UUID from req.user.id (mirrors public.users.id)
+ * @param email   - Optional: used to auto-create the row if it's missing
+ * @param fullName - Optional: used to auto-create the row if it's missing
  */
-export async function getUserById(userId: string) {
+export async function getUserById(
+  userId: string,
+  email?: string,
+  fullName?: string,
+) {
   const [user] = await db
     .select()
     .from(users)
@@ -24,8 +31,16 @@ export async function getUserById(userId: string) {
     .limit(1);
 
   if (!user) {
-    // This can happen if Supabase auth.users has the user but the DB trigger
-    // hasn't created the public.users row yet (race condition on first login).
+    // Auto-create the row if we have enough data (first-login race condition)
+    if (email) {
+      const name = fullName || email.split("@")[0];
+      const [created] = await db
+        .insert(users)
+        .values({ id: userId, email, fullName: name })
+        .onConflictDoNothing()
+        .returning();
+      return created ?? null;
+    }
     throw new AppError("User profile not found", 404);
   }
 
@@ -38,16 +53,18 @@ export async function getUserById(userId: string) {
  */
 export async function getAllUsers() {
   const allUsers = await db.select().from(users).orderBy(users.createdAt);
-
   return allUsers;
 }
 
 /**
  * Update mutable profile fields for a given user.
- * Only the fields explicitly passed are changed — undefined keys are ignored.
+ * Uses an UPSERT so it gracefully creates the row if it doesn't exist yet
+ * (handles the case where the DB trigger hasn't fired after sign-up).
  *
  * @param userId     - UUID of the user to update
  * @param updateData - Partial set of fields to change
+ * @param email      - Fallback email for upsert if row is missing
+ * @param fullName   - Fallback full name for upsert if row is missing
  */
 export async function updateUserById(
   userId: string,
@@ -56,19 +73,43 @@ export async function updateUserById(
     phoneNumber: string;
     profilePictureUrl: string;
   }>,
+  email?: string,
+  fullName?: string,
 ) {
+  // Try a plain UPDATE first (fast path — row already exists)
   const [updated] = await db
     .update(users)
     .set({
       ...updateData,
-      updatedAt: new Date(), // keep updatedAt fresh
+      updatedAt: new Date(),
     })
     .where(eq(users.id, userId))
-    .returning(); // returns the full updated row
+    .returning();
 
-  if (!updated) {
-    throw new AppError("User not found", 404);
-  }
+  if (updated) return updated;
 
-  return updated;
+  // Slow path: row missing — upsert it now so the update lands
+  const fallbackEmail    = email    ?? `${userId}@unknown.local`;
+  const fallbackFullName = updateData.fullName ?? fullName ?? fallbackEmail.split("@")[0];
+
+  const [upserted] = await db
+    .insert(users)
+    .values({
+      id:              userId,
+      email:           fallbackEmail,
+      fullName:        fallbackFullName,
+      phoneNumber:     updateData.phoneNumber,
+      profilePictureUrl: updateData.profilePictureUrl,
+    })
+    .onConflictDoUpdate({
+      target: users.id,
+      set: {
+        ...updateData,
+        updatedAt: new Date(),
+      },
+    })
+    .returning();
+
+  if (!upserted) throw new AppError("Failed to create/update user profile", 500);
+  return upserted;
 }

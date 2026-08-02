@@ -5,30 +5,75 @@ import { usePathname, useRouter } from "next/navigation";
 import AuthModal from "@/components/auth/AuthModal";
 import ProfileDropdown from "@/components/shadcn-studio/blocks/dropdown-profile";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { supabase } from "@/lib/supabase";
 
-// Simulated auth state — swap with real auth context when ready
-const MOCK_USER = {
-  name: "Jordan Mercer",
-  email: "jordan@example.com",
-  avatar: "https://i.pravatar.cc/80?img=11",
-  initials: "JM",
-};
+const DEFAULT_AVATAR = (seed: string) =>
+  `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=0ea5e9`;
+
+interface NavUser {
+  name: string;
+  email: string;
+  avatar: string;
+  initials: string;
+}
 
 export default function Navbar() {
-  const [scrolled, setScrolled] = useState(false);
-  const [authOpen, setAuthOpen] = useState(false);
-  const [isLoggedIn] = useState(true); // toggle to false to show login button
+  const [scrolled, setScrolled]   = useState(false);
+  const [authOpen, setAuthOpen]   = useState(false);
+  const [navUser, setNavUser]     = useState<NavUser | null>(null); // null = not logged in / loading
   const pathname = usePathname();
-  const router = useRouter();
 
+  // ── Scroll shadow ─────────────────────────────────────────────────────────
   useEffect(() => {
     const handleScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // ── Fetch real user on mount & subscribe to auth changes ─────────────────
+  useEffect(() => {
+    async function loadUser() {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) { setNavUser(null); return; }
+
+      // Try backend first for the richest data (profile picture URL etc.)
+      try {
+        const res = await fetch(
+          `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"}/api/users/me`,
+          { headers: { Authorization: `Bearer ${session.access_token}` } }
+        );
+        const json = await res.json();
+        const u    = json.data;
+
+        const name    = u.fullName || session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "You";
+        const email   = u.email   || session.user.email || "";
+        const initials = name.split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase();
+        const avatar  = u.profilePictureUrl || DEFAULT_AVATAR(initials);
+
+        setNavUser({ name, email, avatar, initials });
+      } catch {
+        // Fall back to Supabase session metadata
+        const meta    = session.user.user_metadata;
+        const name    = meta?.full_name || session.user.email?.split("@")[0] || "You";
+        const email   = session.user.email || "";
+        const initials = name.split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase();
+        setNavUser({ name, email, avatar: DEFAULT_AVATAR(initials), initials });
+      }
+    }
+
+    loadUser();
+
+    // Re-run whenever the auth state changes (login / logout)
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
+      loadUser();
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
   const isActive = (href: string) => pathname === href;
 
+  // ── Avatar trigger button ─────────────────────────────────────────────────
   const avatarTrigger = (
     <button
       className="w-9 h-9 flex items-center justify-center rounded-full border border-slate-200 bg-slate-100 hover:bg-sky-50 hover:border-sky-300 transition-all overflow-hidden"
@@ -36,8 +81,10 @@ export default function Navbar() {
       id="navbar-profile-trigger"
     >
       <Avatar size="default">
-        <AvatarImage src={MOCK_USER.avatar} alt={MOCK_USER.name} />
-        <AvatarFallback>{MOCK_USER.initials}</AvatarFallback>
+        <AvatarImage src={navUser?.avatar ?? ""} alt={navUser?.name ?? "User"} />
+        <AvatarFallback className="text-xs font-semibold">
+          {navUser?.initials ?? "?"}
+        </AvatarFallback>
       </Avatar>
     </button>
   );
@@ -70,9 +117,7 @@ export default function Navbar() {
             <Link
               href="/"
               className={`px-5 py-1.5 rounded-full transition-all whitespace-nowrap ${
-                isActive("/")
-                  ? "bg-white shadow-sm text-slate-900"
-                  : "hover:bg-white hover:shadow-sm"
+                isActive("/") ? "bg-white shadow-sm text-slate-900" : "hover:bg-white hover:shadow-sm"
               }`}
             >
               Home
@@ -92,9 +137,7 @@ export default function Navbar() {
             <Link
               href="/cars"
               className={`px-5 py-1.5 rounded-full transition-all whitespace-nowrap ${
-                isActive("/cars")
-                  ? "bg-white shadow-sm text-slate-900"
-                  : "hover:bg-white hover:shadow-sm"
+                isActive("/cars") ? "bg-white shadow-sm text-slate-900" : "hover:bg-white hover:shadow-sm"
               }`}
             >
               Search
@@ -122,9 +165,9 @@ export default function Navbar() {
               </svg>
             </button>
 
-            {/* Profile dropdown or sign-in */}
-            {isLoggedIn ? (
-              <ProfileDropdown trigger={avatarTrigger} align="end" />
+            {/* Profile dropdown (logged in) or Sign-in button */}
+            {navUser ? (
+              <ProfileDropdown trigger={avatarTrigger} align="end" user={navUser} />
             ) : (
               <button
                 onClick={() => setAuthOpen(true)}

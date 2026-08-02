@@ -4,7 +4,7 @@
 // ---------------------------------------------------------------------------
 
 export { default as userRoutes } from "./user.routes";
-export { default as vehicleRoutes } from './vehicle.routes';
+// export { default as vehicleRoutes } from './vehicle.routes';
 
 // Add more routers here as you build them out, e.g.:
 // export { default as bookingRoutes }  from './bookingRoutes';

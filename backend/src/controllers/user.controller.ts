@@ -35,15 +35,18 @@ export async function getAllUsers(
  * GET /api/users/me
  *
  * Returns the full profile of the currently authenticated user.
- * requireAuth middleware must run before this, which populates req.user.
+ * Passes email from the JWT so the service can auto-create the row
+ * if it doesn't exist yet (first-login race condition).
  */
 export async function getMe(req: Request, res: Response, next: NextFunction) {
   try {
-    // req.user is guaranteed by requireAuth — safe to assert non-null
-    const user = await userService.getUserById(req.user!.id);
+    const user = await userService.getUserById(
+      req.user!.id,
+      req.user!.email,
+    );
     return res.json({ data: user });
   } catch (err) {
-    next(err); // forward to errorHandler middleware
+    next(err);
   }
 }
 
@@ -52,6 +55,7 @@ export async function getMe(req: Request, res: Response, next: NextFunction) {
  *
  * Updates the current user's editable profile fields.
  * Request body is pre-validated by the validate(updateProfileSchema) middleware.
+ * Passes email/name from JWT so the service can upsert the row if missing.
  */
 export async function updateMe(
   req: Request,
@@ -59,7 +63,12 @@ export async function updateMe(
   next: NextFunction,
 ) {
   try {
-    const updated = await userService.updateUserById(req.user!.id, req.body);
+    const updated = await userService.updateUserById(
+      req.user!.id,
+      req.body,
+      req.user!.email,          // fallback email for upsert
+      req.body.fullName,        // preferred name comes from body
+    );
     return res.json({ data: updated });
   } catch (err) {
     next(err);
