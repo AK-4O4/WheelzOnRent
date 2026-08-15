@@ -2,6 +2,8 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { fetchVehicles, type Vehicle } from "@/lib/api";
+import { usePopularCars } from "@/hooks/use-popular-cars";
+
 
 // Fallback image when a vehicle has no primaryImage
 const fallbackImage = (id: string) =>
@@ -100,16 +102,7 @@ function VehicleCard({ car }: { car: Vehicle }) {
 }
 
 export default function PopularCarRentals() {
-  const [vehicles, setVehicles] = useState<Vehicle[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState(false);
-
-  useEffect(() => {
-    fetchVehicles({ limit: 6 })
-      .then(({ data }) => setVehicles(data))
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
-  }, []);
+  const { cars: vehicles, loading, error } = usePopularCars(6);
 
   return (
     <section className="py-20 bg-slate-50/30" data-purpose="popular-car-rentals">

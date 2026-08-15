@@ -1,85 +1,38 @@
 "use client";
-import { useState } from "react";
+// =============================================================================
+// app/list-car/page.tsx
+// Multi-step "List your car" form — UI only, logic in useListCarForm hook.
+// =============================================================================
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useListCarForm } from "@/hooks/use-list-car-form";
+import { LIST_CAR_STEPS, PAKISTAN_CITIES, CAR_MAKES, SEAT_OPTIONS } from "@/data/constants/vehicles.constants";
+import { CheckCircleIcon } from "@/assets/svg";
 
-// ─── Types ─────────────────────────────────────────────────────────────────
-interface FormData {
-  // Step 1 — Car details
-  make: string;
-  model: string;
-  year: string;
-  plateNumber: string;
-  transmission: string;
-  fuelType: string;
-  seats: string;
-  // Step 2 — Location & pricing
-  city: string;
-  address: string;
-  dailyRate: string;
-  minDays: string;
-  // Step 3 — Photos & docs
-  photos: File[];
-  registration: File | null;
-  insurance: File | null;
-  // Step 4 — Rules & availability
-  rules: string;
-  noSmoking: boolean;
-  noPets: boolean;
-  instantBook: boolean;
+// ── Toggle switch sub-component ───────────────────────────────────────────────
+
+function Toggle({ on }: { on: boolean }) {
+  return (
+    <div className={`w-10 h-6 rounded-full transition-all flex items-center px-0.5 ${on ? "bg-sky-600" : "bg-slate-200"}`}>
+      <div className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${on ? "translate-x-4" : "translate-x-0"}`} />
+    </div>
+  );
 }
 
-const INITIAL: FormData = {
-  make: "", model: "", year: "", plateNumber: "",
-  transmission: "", fuelType: "", seats: "",
-  city: "", address: "", dailyRate: "", minDays: "1",
-  photos: [], registration: null, insurance: null,
-  rules: "", noSmoking: false, noPets: false, instantBook: false,
-};
-
-const STEPS = [
-  { id: 1, label: "Car details",      icon: "🚗" },
-  { id: 2, label: "Location & price", icon: "📍" },
-  { id: 3, label: "Photos & docs",    icon: "📸" },
-  { id: 4, label: "Rules",            icon: "📋" },
-];
-
-const PAKISTAN_CITIES = [
-  "Karachi", "Lahore", "Islamabad", "Rawalpindi", "Peshawar",
-  "Multan", "Faisalabad", "Quetta", "Sialkot", "Gujranwala",
-];
-
-const MAKES = ["Toyota", "Honda", "Suzuki", "Hyundai", "KIA", "Daihatsu", "Mitsubishi", "Nissan", "Mercedes", "BMW"];
+// ── Page ─────────────────────────────────────────────────────────────────────
 
 export default function ListCarPage() {
-  const [step, setStep] = useState(1);
-  const [form, setForm] = useState<FormData>(INITIAL);
-  const [submitted, setSubmitted] = useState(false);
-  const [photoUrls, setPhotoUrls] = useState<string[]>([]);
-
-  function set<K extends keyof FormData>(key: K, value: FormData[K]) {
-    setForm((prev) => ({ ...prev, [key]: value }));
-  }
-
-  function handlePhotoChange(e: React.ChangeEvent<HTMLInputElement>) {
-    const files = Array.from(e.target.files ?? []);
-    setForm((prev) => ({ ...prev, photos: [...prev.photos, ...files] }));
-    setPhotoUrls((prev) => [
-      ...prev,
-      ...files.map((f) => URL.createObjectURL(f)),
-    ]);
-  }
-
-  function removePhoto(i: number) {
-    setForm((prev) => ({ ...prev, photos: prev.photos.filter((_, j) => j !== i) }));
-    setPhotoUrls((prev) => prev.filter((_, j) => j !== i));
-  }
-
-  function next() { if (step < 4) setStep((s) => s + 1); }
-  function back() { if (step > 1) setStep((s) => s - 1); }
+  const {
+    step, setStep,
+    form, set,
+    submitted, setSubmitted,
+    photoUrls,
+    handlePhotoChange, removePhoto,
+    next, back, reset,
+  } = useListCarForm();
 
   if (submitted) {
     return (
@@ -87,28 +40,21 @@ export default function ListCarPage() {
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center px-6 py-24 text-center">
           <div className="w-20 h-20 rounded-full bg-emerald-50 flex items-center justify-center mb-6">
-            <svg className="w-10 h-10 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="1.8">
-              <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-            </svg>
+            <CheckCircleIcon className="w-10 h-10 text-emerald-500" />
           </div>
-          <h1
-            className="text-4xl font-normal text-slate-900 mb-4"
-            style={{ fontFamily: "var(--font-playfair), 'Playfair Display', serif" }}
-          >
-            Listing submitted!
-          </h1>
+          <h1 className="text-4xl font-normal font-serif text-slate-900 mb-4">Listing submitted!</h1>
           <p className="text-slate-500 max-w-sm mb-8 leading-relaxed">
             Your <strong>{form.year} {form.make} {form.model}</strong> is under review. We typically approve listings within 24 hours.
           </p>
           <div className="flex flex-col sm:flex-row gap-3">
             <Link
-              href="/manage-listings"
+              href="/account?tab=listings"
               className="bg-sky-600 hover:bg-sky-700 text-white font-semibold px-7 py-3 rounded-full text-sm transition-all"
             >
               View my listings
             </Link>
             <button
-              onClick={() => { setForm(INITIAL); setPhotoUrls([]); setStep(1); setSubmitted(false); }}
+              onClick={reset}
               className="border border-slate-200 text-slate-700 font-semibold px-7 py-3 rounded-full text-sm hover:bg-slate-50 transition-all"
             >
               List another car
@@ -133,17 +79,12 @@ export default function ListCarPage() {
             </svg>
             Become a host
           </Link>
-          <h1
-            className="text-4xl font-normal text-slate-900"
-            style={{ fontFamily: "var(--font-playfair), 'Playfair Display', serif" }}
-          >
-            List your car
-          </h1>
+          <h1 className="text-4xl font-normal font-serif text-slate-900">List your car</h1>
         </div>
 
         {/* Step indicator */}
         <div className="flex items-center gap-2 mb-10">
-          {STEPS.map((s, i) => (
+          {LIST_CAR_STEPS.map((s, i) => (
             <div key={s.id} className="flex items-center gap-2 flex-1">
               <button
                 onClick={() => s.id < step && setStep(s.id)}
@@ -168,7 +109,7 @@ export default function ListCarPage() {
                 </span>
                 <span className="hidden sm:block">{s.label}</span>
               </button>
-              {i < STEPS.length - 1 && (
+              {i < LIST_CAR_STEPS.length - 1 && (
                 <div className={`flex-1 h-0.5 rounded-full mx-1 ${s.id < step ? "bg-emerald-400" : "bg-slate-200"}`} />
               )}
             </div>
@@ -178,7 +119,7 @@ export default function ListCarPage() {
         {/* Form card */}
         <div className="bg-white rounded-2xl border border-slate-100 shadow-sm p-8">
 
-          {/* ── STEP 1: Car details ───────────────────────────────────────── */}
+          {/* ── STEP 1: Car details ────────────────────────────────────────── */}
           {step === 1 && (
             <div className="space-y-6">
               <div>
@@ -196,7 +137,7 @@ export default function ListCarPage() {
                     id="list-car-make"
                   >
                     <option value="">Select make</option>
-                    {MAKES.map((m) => <option key={m}>{m}</option>)}
+                    {CAR_MAKES.map((m) => <option key={m}>{m}</option>)}
                   </select>
                 </div>
                 <div>
@@ -281,14 +222,14 @@ export default function ListCarPage() {
                     id="list-car-seats"
                   >
                     <option value="">Select</option>
-                    {[2, 4, 5, 6, 7, 8].map((n) => <option key={n}>{n}</option>)}
+                    {SEAT_OPTIONS.map((n) => <option key={n}>{n}</option>)}
                   </select>
                 </div>
               </div>
             </div>
           )}
 
-          {/* ── STEP 2: Location & pricing ────────────────────────────────── */}
+          {/* ── STEP 2: Location & pricing ─────────────────────────────────── */}
           {step === 2 && (
             <div className="space-y-6">
               <div>
@@ -361,7 +302,6 @@ export default function ListCarPage() {
                 </div>
               </div>
 
-              {/* Market comparison hint */}
               {form.city && (
                 <div className="bg-sky-50 border border-sky-100 rounded-xl p-4">
                   <p className="text-xs font-semibold text-sky-700 mb-1">💡 Market rates in {form.city}</p>
@@ -374,7 +314,7 @@ export default function ListCarPage() {
             </div>
           )}
 
-          {/* ── STEP 3: Photos & docs ─────────────────────────────────────── */}
+          {/* ── STEP 3: Photos & docs ──────────────────────────────────────── */}
           {step === 3 && (
             <div className="space-y-6">
               <div>
@@ -382,7 +322,6 @@ export default function ListCarPage() {
                 <p className="text-slate-400 text-sm">Clear photos get 3× more bookings. At least 3 required.</p>
               </div>
 
-              {/* Photo upload */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-2">Car photos</label>
                 <label
@@ -394,26 +333,16 @@ export default function ListCarPage() {
                   </svg>
                   <p className="text-sm font-medium text-slate-600 group-hover:text-sky-600">Click to upload photos</p>
                   <p className="text-xs text-slate-400 mt-1">JPG, PNG · Max 10MB each</p>
-                  <input
-                    id="list-car-photos"
-                    type="file"
-                    accept="image/*"
-                    multiple
-                    className="hidden"
-                    onChange={handlePhotoChange}
-                  />
+                  <input id="list-car-photos" type="file" accept="image/*" multiple className="hidden" onChange={handlePhotoChange} />
                 </label>
 
-                {/* Preview grid */}
                 {photoUrls.length > 0 && (
                   <div className="grid grid-cols-3 gap-3 mt-4">
                     {photoUrls.map((url, i) => (
                       <div key={i} className="relative group aspect-video rounded-xl overflow-hidden bg-slate-100">
                         <img src={url} alt="" className="w-full h-full object-cover" />
                         {i === 0 && (
-                          <span className="absolute top-2 left-2 bg-sky-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">
-                            Cover
-                          </span>
+                          <span className="absolute top-2 left-2 bg-sky-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full">Cover</span>
                         )}
                         <button
                           type="button"
@@ -428,7 +357,6 @@ export default function ListCarPage() {
                 )}
               </div>
 
-              {/* Documents */}
               <div className="grid grid-cols-2 gap-4">
                 {[
                   { key: "registration" as const, label: "Vehicle registration", icon: "📄" },
@@ -461,7 +389,7 @@ export default function ListCarPage() {
             </div>
           )}
 
-          {/* ── STEP 4: Rules & preferences ──────────────────────────────── */}
+          {/* ── STEP 4: Rules & preferences ───────────────────────────────── */}
           {step === 4 && (
             <div className="space-y-6">
               <div>
@@ -469,11 +397,10 @@ export default function ListCarPage() {
                 <p className="text-slate-400 text-sm">Set your house rules so renters know what to expect.</p>
               </div>
 
-              {/* Quick toggles */}
               <div className="space-y-3">
                 {[
                   { key: "noSmoking" as const, label: "No smoking", desc: "Renters may not smoke inside the car" },
-                  { key: "noPets" as const,    label: "No pets",    desc: "Pets are not allowed in the vehicle" },
+                  { key: "noPets" as const, label: "No pets", desc: "Pets are not allowed in the vehicle" },
                   { key: "instantBook" as const, label: "Instant booking", desc: "Allow renters to book without waiting for approval" },
                 ].map(({ key, label, desc }) => (
                   <div
@@ -487,22 +414,11 @@ export default function ListCarPage() {
                       <p className="text-sm font-semibold text-slate-900">{label}</p>
                       <p className="text-xs text-slate-400">{desc}</p>
                     </div>
-                    <div
-                      className={`w-10 h-6 rounded-full transition-all flex items-center px-0.5 ${
-                        form[key] ? "bg-sky-600" : "bg-slate-200"
-                      }`}
-                    >
-                      <div
-                        className={`w-5 h-5 rounded-full bg-white shadow-sm transition-transform ${
-                          form[key] ? "translate-x-4" : "translate-x-0"
-                        }`}
-                      />
-                    </div>
+                    <Toggle on={form[key] as boolean} />
                   </div>
                 ))}
               </div>
 
-              {/* Custom rules */}
               <div>
                 <label className="block text-sm font-medium text-slate-700 mb-1.5">Additional rules (optional)</label>
                 <textarea
@@ -519,28 +435,18 @@ export default function ListCarPage() {
               <div className="bg-slate-50 rounded-2xl border border-slate-100 p-5">
                 <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">Listing summary</p>
                 <div className="space-y-1.5 text-sm">
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Car</span>
-                    <span className="font-medium">{[form.year, form.make, form.model].filter(Boolean).join(" ") || "—"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Plate</span>
-                    <span className="font-medium">{form.plateNumber || "—"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">City</span>
-                    <span className="font-medium">{form.city || "—"}</span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Daily rate</span>
-                    <span className="font-semibold text-sky-700">
-                      {form.dailyRate ? `PKR ${parseInt(form.dailyRate).toLocaleString()}` : "—"}
-                    </span>
-                  </div>
-                  <div className="flex justify-between">
-                    <span className="text-slate-400">Photos</span>
-                    <span className="font-medium">{form.photos.length} uploaded</span>
-                  </div>
+                  {[
+                    { label: "Car", value: [form.year, form.make, form.model].filter(Boolean).join(" ") || "—" },
+                    { label: "Plate", value: form.plateNumber || "—" },
+                    { label: "City", value: form.city || "—" },
+                    { label: "Daily rate", value: form.dailyRate ? `PKR ${parseInt(form.dailyRate).toLocaleString()}` : "—", highlight: true },
+                    { label: "Photos", value: `${form.photos.length} uploaded` },
+                  ].map(({ label, value, highlight }) => (
+                    <div key={label} className="flex justify-between">
+                      <span className="text-slate-400">{label}</span>
+                      <span className={`font-medium ${highlight ? "text-sky-700 font-semibold" : ""}`}>{value}</span>
+                    </div>
+                  ))}
                 </div>
               </div>
             </div>

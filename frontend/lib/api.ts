@@ -3,25 +3,17 @@
 // Base URL is read from NEXT_PUBLIC_API_URL (defaults to localhost:5000).
 // ---------------------------------------------------------------------------
 
+import type { VehicleSummary } from "@/types";
+
 const BASE = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
 
 // ── Types ─────────────────────────────────────────────────────────────────
 
-export interface Vehicle {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  transmission: string;
-  fuelType: string;
-  seats: number;
-  city: string;
-  dailyRate: string;
-  status: string;
-  createdAt: string;
-  ownerId: string;
-  primaryImage: string | null;
-}
+/**
+ * Vehicle — alias for VehicleSummary from @/types.
+ * Exported for backward compat with existing imports (e.g. PopularCarRental).
+ */
+export type Vehicle = VehicleSummary;
 
 export interface VehicleFilters {
   city?: string;

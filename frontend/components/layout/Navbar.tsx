@@ -5,21 +5,11 @@ import { usePathname } from "next/navigation";
 import ProfileDropdown from "@/components/shadcn-studio/blocks/dropdown-profile";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/lib/supabase";
-
-const DEFAULT_AVATAR = (seed: string) =>
-  `https://api.dicebear.com/9.x/initials/svg?seed=${encodeURIComponent(seed)}&backgroundColor=0ea5e9`;
-
-interface NavUser {
-  name: string;
-  email: string;
-  avatar: string;
-  initials: string;
-}
+import { useNavbarUser } from "@/hooks/use-navbar-user";
 
 export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
-  const [navUser, setNavUser] = useState<NavUser | null>(null); // null = not logged in / loading
+  const navUser = useNavbarUser();
   const pathname = usePathname();
 
   // ── Scroll shadow ─────────────────────────────────────────────────────────
@@ -27,47 +17,6 @@ export default function Navbar() {
     const handleScroll = () => setScrolled(window.scrollY > 40);
     window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  // ── Fetch real user on mount & subscribe to auth changes ─────────────────
-  useEffect(() => {
-    async function loadUser() {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) { setNavUser(null); return; }
-
-      // Try backend first for the richest data (profile picture URL etc.)
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000"}/api/users/me`,
-          { headers: { Authorization: `Bearer ${session.access_token}` } }
-        );
-        const json = await res.json();
-        const u = json.data;
-
-        const name = u.fullName || session.user.user_metadata?.full_name || session.user.email?.split("@")[0] || "You";
-        const email = u.email || session.user.email || "";
-        const initials = name.split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase();
-        const avatar = u.profilePictureUrl || DEFAULT_AVATAR(initials);
-
-        setNavUser({ name, email, avatar, initials });
-      } catch {
-        // Fall back to Supabase session metadata
-        const meta = session.user.user_metadata;
-        const name = meta?.full_name || session.user.email?.split("@")[0] || "You";
-        const email = session.user.email || "";
-        const initials = name.split(" ").map((p: string) => p[0]).join("").slice(0, 2).toUpperCase();
-        setNavUser({ name, email, avatar: DEFAULT_AVATAR(initials), initials });
-      }
-    }
-
-    loadUser();
-
-    // Re-run whenever the auth state changes (login / logout)
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(() => {
-      loadUser();
-    });
-
-    return () => subscription.unsubscribe();
   }, []);
 
   const isActive = (href: string) => pathname === href;
@@ -167,19 +116,19 @@ export default function Navbar() {
             ) : (
               <div className="flex items-center gap-2">
                 <Button
-                  asChild
+                  render={<Link href="/login" />}
                   variant="outline"
                   size="sm"
                   className="rounded-full border-slate-200 text-slate-700 hover:border-sky-300 hover:text-sky-600 hover:bg-sky-50 p-4"
                 >
-                  <Link href="/login">Log in</Link>
+                  Log in
                 </Button>
                 <Button
-                  asChild
+                  render={<Link href="/register" />}
                   size="sm"
                   className="rounded-full p-4"
                 >
-                  <Link href="/register">Sign up</Link>
+                  Sign up
                 </Button>
               </div>
             )}

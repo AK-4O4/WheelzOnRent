@@ -1,11 +1,14 @@
 import type { Metadata } from "next";
-import { Outfit, Playfair_Display } from "next/font/google";
+import { Plus_Jakarta_Sans, Playfair_Display } from "next/font/google";
 import "./globals.css";
 import { TooltipProvider } from "@/components/ui/tooltip";
 
-const outfit = Outfit({
+// Plus Jakarta Sans is a professional geometric sans-serif — the closest
+// freely-available proxy for Google Sans on Google Fonts.
+const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
-  variable: "--font-outfit",
+  variable: "--font-sans",
+  weight: ["300", "400", "500", "600", "700", "800"],
   display: "swap",
 });
 
@@ -30,7 +33,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${outfit.variable} ${playfair.variable} h-full antialiased scroll-smooth`}
+      className={`${plusJakartaSans.variable} ${playfair.variable} h-full antialiased scroll-smooth`}
     >
       <body className="min-h-full bg-white text-slate-900">
         <TooltipProvider>{children}</TooltipProvider>

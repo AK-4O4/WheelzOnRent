@@ -296,7 +296,7 @@ const PersonalInfo = ({ onAvatarChange }: PersonalInfoProps) => {
             </div>
             <div className='flex flex-col items-start gap-2'>
               <Label htmlFor='personal-country'>Country</Label>
-              <Select value={country} onValueChange={setCountry}>
+              <Select value={country} onValueChange={(v) => setCountry(v ?? '')}>
                 <SelectTrigger id='personal-country' className='w-full'>
                   <SelectValue placeholder='Select country' />
                 </SelectTrigger>
@@ -311,7 +311,7 @@ const PersonalInfo = ({ onAvatarChange }: PersonalInfoProps) => {
             </div>
             <div className='space-y-2'>
               <Label htmlFor='personal-gender'>Gender</Label>
-              <Select value={gender} onValueChange={setGender}>
+              <Select value={gender} onValueChange={(v) => setGender(v ?? '')}>
                 <SelectTrigger id='personal-gender' className='w-full'>
                   <SelectValue placeholder='Select a gender' />
                 </SelectTrigger>

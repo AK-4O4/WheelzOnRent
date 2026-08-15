@@ -1,39 +1,17 @@
 "use client";
+// =============================================================================
+// app/cars/page.tsx
+// Car listing page — UI only, all logic in useCarsFilter hook.
+// =============================================================================
 import Link from "next/link";
 import Navbar from "@/components/layout/Navbar";
 import Footer from "@/components/layout/Footer";
-import { useState, useEffect } from "react";
+import type { VehicleSummary as Vehicle } from "@/types";
+import { FUEL_LABELS, TRANS_LABELS, MIN_PRICE, DEFAULT_MAX_PRICE, PRICE_STEP } from "@/data/constants/vehicles.constants";
+import { useCarsFilter } from "@/hooks/use-cars-filter";
+import { MapPinIcon } from "@/assets/svg";
 
-// ── Types ──────────────────────────────────────────────────────────────────
-interface Vehicle {
-  id: string;
-  make: string;
-  model: string;
-  year: number;
-  transmission: string;
-  fuelType: string;
-  seats: number;
-  city: string;
-  dailyRate: string;
-  primaryImage: string | null;
-}
-
-const API = process.env.NEXT_PUBLIC_API_URL ?? "http://localhost:5000";
-
-const FUEL_LABELS: Record<string, string> = {
-  gasoline: "Gasoline",
-  diesel:   "Diesel",
-  electric: "Electric",
-  hybrid:   "Hybrid",
-};
-
-const TRANS_LABELS: Record<string, string> = {
-  manual:    "Manual",
-  automatic: "Automatic",
-};
-
-const CATEGORIES = ["All", "Gasoline", "Diesel", "Electric", "Hybrid"];
-const TRANSMISSIONS = ["All", "Automatic", "Manual"];
+// ── Sub-components ────────────────────────────────────────────────────────────
 
 function PillBtn({ active, onClick, children }: { active: boolean; onClick: () => void; children: React.ReactNode }) {
   return (
@@ -65,7 +43,7 @@ function SkeletonCard() {
 
 function CarCard({ car }: { car: Vehicle }) {
   const name = `${car.year} ${car.make} ${car.model}`;
-  const fuelLabel  = FUEL_LABELS[car.fuelType]  ?? car.fuelType;
+  const fuelLabel = FUEL_LABELS[car.fuelType] ?? car.fuelType;
   const transLabel = TRANS_LABELS[car.transmission] ?? car.transmission;
   const price = parseFloat(car.dailyRate);
   const placeholder = `https://api.dicebear.com/9.x/shapes/svg?seed=${car.id}&backgroundColor=e2e8f0`;
@@ -94,10 +72,7 @@ function CarCard({ car }: { car: Vehicle }) {
         </div>
 
         <p className="text-xs text-slate-400 flex items-center gap-1 mb-3">
-          <svg className="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-            <path strokeLinecap="round" strokeLinejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-            <path strokeLinecap="round" strokeLinejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-          </svg>
+          <MapPinIcon className="w-3 h-3 shrink-0" />
           {car.city}
         </p>
 
@@ -117,49 +92,19 @@ function CarCard({ car }: { car: Vehicle }) {
   );
 }
 
+// ── Page ─────────────────────────────────────────────────────────────────────
+
 export default function CarsPage() {
-  const [vehicles, setVehicles]       = useState<Vehicle[]>([]);
-  const [loading, setLoading]         = useState(true);
-  const [error, setError]             = useState<string | null>(null);
-
-  const [fuel,         setFuel]         = useState("All");
-  const [transmission, setTransmission] = useState("All");
-  const [maxPrice,     setMaxPrice]     = useState(100_000);
-  const [sortBy,       setSortBy]       = useState("newest");
-
-  useEffect(() => {
-    async function fetchVehicles() {
-      try {
-        setLoading(true);
-        const res = await fetch(`${API}/api/vehicles`);
-        if (!res.ok) throw new Error(`${res.status}`);
-        const json = await res.json();
-        setVehicles(json.data ?? []);
-      } catch (e) {
-        console.error(e);
-        setError("Could not load vehicles. Is the backend running?");
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchVehicles();
-  }, []);
-
-  const filtered = vehicles
-    .filter((c) => {
-      const fuelLabel = FUEL_LABELS[c.fuelType] ?? c.fuelType;
-      const transLabel = TRANS_LABELS[c.transmission] ?? c.transmission;
-      return (
-        (fuel === "All" || fuelLabel === fuel) &&
-        (transmission === "All" || transLabel === transmission) &&
-        parseFloat(c.dailyRate) <= maxPrice
-      );
-    })
-    .sort((a, b) => {
-      if (sortBy === "price_asc")  return parseFloat(a.dailyRate) - parseFloat(b.dailyRate);
-      if (sortBy === "price_desc") return parseFloat(b.dailyRate) - parseFloat(a.dailyRate);
-      return new Date(b.createdAt ?? 0).getTime() - new Date(a.createdAt ?? 0).getTime();
-    });
+  const {
+    vehicles, loading, error,
+    fuel, setFuel,
+    transmission, setTransmission,
+    maxPrice, setMaxPrice,
+    sortBy, setSortBy,
+    filtered,
+    fuelOptions, transmissionOptions,
+    clearFilters,
+  } = useCarsFilter();
 
   return (
     <div className="min-h-screen bg-white text-slate-900 overflow-x-hidden">
@@ -182,8 +127,8 @@ export default function CarsPage() {
             <span className="text-white/80">Cars</span>
           </nav>
           <h1
-            className="text-white font-normal leading-tight"
-            style={{ fontFamily: "var(--font-playfair), 'Playfair Display', serif", fontSize: "clamp(2rem, 4vw, 3.5rem)" }}
+            className="text-white font-normal font-serif leading-tight"
+            style={{ fontSize: "clamp(2rem, 4vw, 3.5rem)" }}
           >
             Browse available cars
           </h1>
@@ -204,7 +149,7 @@ export default function CarsPage() {
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Fuel type</p>
                 <div className="flex flex-wrap gap-2">
-                  {CATEGORIES.map((f) => (
+                  {fuelOptions.map((f) => (
                     <PillBtn key={f} active={fuel === f} onClick={() => setFuel(f)}>{f}</PillBtn>
                   ))}
                 </div>
@@ -213,7 +158,7 @@ export default function CarsPage() {
               <div>
                 <p className="text-xs font-semibold text-slate-500 uppercase tracking-wider mb-3">Transmission</p>
                 <div className="flex flex-wrap gap-2">
-                  {TRANSMISSIONS.map((t) => (
+                  {transmissionOptions.map((t) => (
                     <PillBtn key={t} active={transmission === t} onClick={() => setTransmission(t)}>{t}</PillBtn>
                   ))}
                 </div>
@@ -226,9 +171,9 @@ export default function CarsPage() {
                 </div>
                 <input
                   type="range"
-                  min={1000}
-                  max={100_000}
-                  step={1000}
+                  min={MIN_PRICE}
+                  max={DEFAULT_MAX_PRICE}
+                  step={PRICE_STEP}
                   value={maxPrice}
                   onChange={(e) => setMaxPrice(Number(e.target.value))}
                   className="w-full accent-sky-600"
@@ -241,7 +186,7 @@ export default function CarsPage() {
               </div>
 
               <button
-                onClick={() => { setFuel("All"); setTransmission("All"); setMaxPrice(100_000); }}
+                onClick={clearFilters}
                 className="w-full text-sm text-sky-600 font-medium hover:text-sky-700 transition-colors text-left"
               >
                 Clear all filters
@@ -292,10 +237,7 @@ export default function CarsPage() {
                   {vehicles.length === 0 ? "No vehicles listed yet." : "No vehicles match these filters."}
                 </p>
                 {vehicles.length > 0 && (
-                  <button
-                    onClick={() => { setFuel("All"); setTransmission("All"); setMaxPrice(100_000); }}
-                    className="text-sky-600 text-sm font-medium hover:underline"
-                  >
+                  <button onClick={clearFilters} className="text-sky-600 text-sm font-medium hover:underline">
                     Clear filters
                   </button>
                 )}
