@@ -1,4 +1,4 @@
-import { eq, and, gte, lte, sql } from "drizzle-orm";
+import { eq, and, gte, lte, sql, count, ilike, sum, desc } from "drizzle-orm";
 import db from "../db";
 import { vehicles, vehicleImages, users } from "../db/schema";
 import { AppError } from "../middleware/errorHandler.middleware";
@@ -207,4 +207,68 @@ export async function deleteVehicle(id: string, ownerId: string) {
     .update(vehicles)
     .set({ status: "suspended", updatedAt: new Date() })
     .where(eq(vehicles.id, id));
+}
+
+/**
+ * Add an image record for a vehicle.
+ * The file itself is already in Supabase Storage — the client sends the public URL.
+ * Only the vehicle owner may add images.
+ *
+ * If isPrimary=true this replaces the existing primary image (Postgres unique
+ * partial index guarantees only one primary exists at a time, so we first
+ * demote the old primary then insert the new one).
+ */
+export async function addVehicleImage(
+  vehicleId: string,
+  ownerId: string,
+  data: { imageUrl: string; isPrimary: boolean; displayOrder: number },
+) {
+  // Ownership check
+  const [vehicle] = await db
+    .select({ ownerId: vehicles.ownerId })
+    .from(vehicles)
+    .where(eq(vehicles.id, vehicleId))
+    .limit(1);
+
+  if (!vehicle) throw new AppError("Vehicle not found", 404);
+  if (vehicle.ownerId !== ownerId) throw new AppError("Forbidden", 403);
+
+  // Demote existing primary if the new image is primary
+  if (data.isPrimary) {
+    await db
+      .update(vehicleImages)
+      .set({ isPrimary: false })
+      .where(and(eq(vehicleImages.vehicleId, vehicleId), eq(vehicleImages.isPrimary, true)));
+  }
+
+  const [image] = await db
+    .insert(vehicleImages)
+    .values({
+      vehicleId,
+      imageUrl: data.imageUrl,
+      isPrimary: data.isPrimary,
+      displayOrder: data.displayOrder,
+    })
+    .returning();
+
+  return image;
+}
+
+/** Admin: vehicle count by type — drives Car Types chart */
+export async function getVehicleTypeStats() {
+  const rows = await db
+    .select({
+      vehicleType: vehicles.vehicleType,
+      count:       count(),
+    })
+    .from(vehicles)
+    .groupBy(vehicles.vehicleType);
+
+  const total = rows.reduce((s, r) => s + Number(r.count), 0) || 1;
+
+  return rows.map((r) => ({
+    type:  r.vehicleType ?? "other",
+    count: Number(r.count),
+    pct:   Math.round((Number(r.count) / total) * 100),
+  }));
 }

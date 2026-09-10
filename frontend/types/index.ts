@@ -129,7 +129,6 @@ export type Screen =
   | 'drivers'
   | 'payments'
   | 'expenses'
-  | 'tracking'
   | 'messages'
 
 // ── List Car Form ─────────────────────────────────────────────────────────────

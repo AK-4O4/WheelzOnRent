@@ -36,6 +36,16 @@ export const vehicleStatusEnum = pgEnum("vehicle_status", [
   "under_review",
   "suspended",
 ]);
+export const vehicleTypeEnum = pgEnum("vehicle_type", [
+  "sedan",
+  "suv",
+  "hatchback",
+  "truck",
+  "van",
+  "convertible",
+  "electric",
+  "other",
+]);
 export const bookingStatusEnum = pgEnum("booking_status", [
   "pending",
   "confirmed",
@@ -64,6 +74,18 @@ export const adminLevelEnum = pgEnum("admin_level", [
   "super_admin",
   "moderator",
   "support",
+]);
+export const expenseCategoryEnum = pgEnum("expense_category", [
+  "maintenance",
+  "fuel",
+  "insurance",
+  "office",
+  "marketing",
+  "other",
+]);
+export const expenseStatusEnum = pgEnum("expense_status", [
+  "pending",
+  "completed",
 ]);
 
 // ------------------------------------------
@@ -137,6 +159,7 @@ export const vehicles = pgTable("vehicles", {
   seats: integer("seats").notNull(),
   city: text("city").notNull(), // plain text for now — swap for PostGIS geography later if "near me" search is needed
   dailyRate: numeric("daily_rate", { precision: 10, scale: 2 }).notNull(),
+  vehicleType: vehicleTypeEnum("vehicle_type").default("sedan"),  // optional — set when listing
   status: vehicleStatusEnum("status").default("under_review").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
@@ -201,6 +224,9 @@ export const bookings = pgTable("bookings", {
   startDate: date("start_date").notNull(),
   endDate: date("end_date").notNull(),
   totalAmount: numeric("total_amount", { precision: 10, scale: 2 }).notNull(),
+  pickupAddress: text("pickup_address"),   // where renter picks up the car
+  dropoffAddress: text("dropoff_address"), // where renter returns the car
+  driverNote: text("driver_note"),         // optional note for assigned driver
   status: bookingStatusEnum("status").default("pending").notNull(),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
@@ -396,6 +422,46 @@ export const notifications = pgTable("notifications", {
   body: text("body").notNull(),
   payload: jsonb("payload"),
   isRead: boolean("is_read").default(false).notNull(),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+// ==========================================
+// 8. EXPENSES (fleet operating costs)
+// ==========================================
+export const expenses = pgTable("expenses", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  name: text("name").notNull(),                          // e.g. 'Oil Change'
+  category: expenseCategoryEnum("category").notNull(),
+  amount: numeric("amount", { precision: 10, scale: 2 }).notNull(),
+  quantity: integer("quantity").default(1).notNull(),
+  status: expenseStatusEnum("status").default("pending").notNull(),
+  vehicleId: uuid("vehicle_id")
+    .references(() => vehicles.id, { onDelete: "set null" }), // optional link to a specific car
+  recordedBy: uuid("recorded_by")
+    .references(() => users.id, { onDelete: "set null" }),
+  expenseDate: date("expense_date").notNull(),
+  notes: text("notes"),
+  createdAt: timestamp("created_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+  updatedAt: timestamp("updated_at", { withTimezone: true })
+    .defaultNow()
+    .notNull(),
+});
+
+// ==========================================
+// 9. ADMIN REMINDERS
+// ==========================================
+export const adminReminders = pgTable("admin_reminders", {
+  id: uuid("id").defaultRandom().primaryKey(),
+  title: text("title").notNull(),
+  scheduledAt: timestamp("scheduled_at", { withTimezone: true }).notNull(),
+  icon: text("icon").default("wrench").notNull(), // 'wrench' | 'dollar' | 'message'
+  isDone: boolean("is_done").default(false).notNull(),
+  createdBy: uuid("created_by")
+    .references(() => users.id, { onDelete: "set null" }),
   createdAt: timestamp("created_at", { withTimezone: true })
     .defaultNow()
     .notNull(),

@@ -36,7 +36,8 @@ export async function getUserById(
       const name = fullName || email.split("@")[0];
       const [created] = await db
         .insert(users)
-        .values({ id: userId, email, fullName: name })
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        .values({ id: userId, email, fullName: name } as any)
         .onConflictDoNothing()
         .returning();
       return created ?? null;
@@ -94,13 +95,14 @@ export async function updateUserById(
 
   const [upserted] = await db
     .insert(users)
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     .values({
       id:              userId,
       email:           fallbackEmail,
       fullName:        fallbackFullName,
       phoneNumber:     updateData.phoneNumber,
       profilePictureUrl: updateData.profilePictureUrl,
-    })
+    } as any)
     .onConflictDoUpdate({
       target: users.id,
       set: {

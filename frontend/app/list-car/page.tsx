@@ -28,10 +28,13 @@ export default function ListCarPage() {
   const {
     step, setStep,
     form, set,
-    submitted, setSubmitted,
+    errors,
+    submitted,
+    submitting, submitError,
     photoUrls,
     handlePhotoChange, removePhoto,
     next, back, reset,
+    submitListing,
   } = useListCarForm();
 
   if (submitted) {
@@ -133,12 +136,15 @@ export default function ListCarPage() {
                   <select
                     value={form.make}
                     onChange={(e) => set("make", e.target.value)}
-                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-white"
+                    className={`w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-white ${
+                      errors.make ? "border-red-400" : "border-slate-200"
+                    }`}
                     id="list-car-make"
                   >
                     <option value="">Select make</option>
                     {CAR_MAKES.map((m) => <option key={m}>{m}</option>)}
                   </select>
+                  {errors.make && <p className="mt-1 text-xs text-red-500">{errors.make}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Model</label>
@@ -147,8 +153,9 @@ export default function ListCarPage() {
                     value={form.model}
                     onChange={(e) => set("model", e.target.value)}
                     id="list-car-model"
-                    className="rounded-xl"
+                    className={`rounded-xl ${errors.model ? "border-red-400" : ""}`}
                   />
+                  {errors.model && <p className="mt-1 text-xs text-red-500">{errors.model}</p>}
                 </div>
               </div>
 
@@ -163,8 +170,9 @@ export default function ListCarPage() {
                     value={form.year}
                     onChange={(e) => set("year", e.target.value)}
                     id="list-car-year"
-                    className="rounded-xl"
+                    className={`rounded-xl ${errors.year ? "border-red-400" : ""}`}
                   />
+                  {errors.year && <p className="mt-1 text-xs text-red-500">{errors.year}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Plate number</label>
@@ -173,8 +181,9 @@ export default function ListCarPage() {
                     value={form.plateNumber}
                     onChange={(e) => set("plateNumber", e.target.value.toUpperCase())}
                     id="list-car-plate"
-                    className="rounded-xl"
+                    className={`rounded-xl ${errors.plateNumber ? "border-red-400" : ""}`}
                   />
+                  {errors.plateNumber && <p className="mt-1 text-xs text-red-500">{errors.plateNumber}</p>}
                 </div>
               </div>
 
@@ -190,6 +199,8 @@ export default function ListCarPage() {
                         className={`flex-1 py-2 rounded-xl text-sm font-medium border transition-all capitalize ${
                           form.transmission === t
                             ? "bg-sky-600 text-white border-sky-600"
+                            : errors.transmission
+                            ? "border-red-400 text-slate-600"
                             : "border-slate-200 text-slate-600 hover:border-slate-400"
                         }`}
                       >
@@ -197,13 +208,16 @@ export default function ListCarPage() {
                       </button>
                     ))}
                   </div>
+                  {errors.transmission && <p className="mt-1 text-xs text-red-500">{errors.transmission}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Fuel type</label>
                   <select
                     value={form.fuelType}
                     onChange={(e) => set("fuelType", e.target.value)}
-                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-white"
+                    className={`w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-white ${
+                      errors.fuelType ? "border-red-400" : "border-slate-200"
+                    }`}
                     id="list-car-fuel"
                   >
                     <option value="">Select</option>
@@ -212,18 +226,22 @@ export default function ListCarPage() {
                     <option value="electric">Electric</option>
                     <option value="hybrid">Hybrid</option>
                   </select>
+                  {errors.fuelType && <p className="mt-1 text-xs text-red-500">{errors.fuelType}</p>}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Seats</label>
                   <select
                     value={form.seats}
                     onChange={(e) => set("seats", e.target.value)}
-                    className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-white"
+                    className={`w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-white ${
+                      errors.seats ? "border-red-400" : "border-slate-200"
+                    }`}
                     id="list-car-seats"
                   >
                     <option value="">Select</option>
                     {SEAT_OPTIONS.map((n) => <option key={n}>{n}</option>)}
                   </select>
+                  {errors.seats && <p className="mt-1 text-xs text-red-500">{errors.seats}</p>}
                 </div>
               </div>
             </div>
@@ -242,12 +260,15 @@ export default function ListCarPage() {
                 <select
                   value={form.city}
                   onChange={(e) => set("city", e.target.value)}
-                  className="w-full border border-slate-200 rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-white"
+                  className={`w-full border rounded-xl px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-sky-500/30 focus:border-sky-400 bg-white ${
+                    errors.city ? "border-red-400" : "border-slate-200"
+                  }`}
                   id="list-car-city"
                 >
                   <option value="">Select your city</option>
                   {PAKISTAN_CITIES.map((c) => <option key={c}>{c}</option>)}
                 </select>
+                {errors.city && <p className="mt-1 text-xs text-red-500">{errors.city}</p>}
               </div>
 
               <div>
@@ -272,14 +293,17 @@ export default function ListCarPage() {
                       value={form.dailyRate}
                       onChange={(e) => set("dailyRate", e.target.value)}
                       id="list-car-daily-rate"
-                      className="rounded-xl pl-12"
+                      className={`rounded-xl pl-12 ${errors.dailyRate ? "border-red-400" : ""}`}
                     />
                   </div>
-                  {form.dailyRate && (
-                    <p className="text-xs text-slate-400 mt-1.5">
-                      Estimated monthly (10 days): <span className="text-emerald-600 font-semibold">PKR {(parseFloat(form.dailyRate) * 10).toLocaleString()}</span>
-                    </p>
-                  )}
+                  {errors.dailyRate
+                    ? <p className="mt-1 text-xs text-red-500">{errors.dailyRate}</p>
+                    : form.dailyRate && (
+                      <p className="text-xs text-slate-400 mt-1.5">
+                        Estimated monthly (10 days): <span className="text-emerald-600 font-semibold">PKR {(parseFloat(form.dailyRate) * 10).toLocaleString()}</span>
+                      </p>
+                    )
+                  }
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-slate-700 mb-1.5">Minimum days</label>
@@ -355,6 +379,7 @@ export default function ListCarPage() {
                     ))}
                   </div>
                 )}
+                {errors.photos && <p className="mt-2 text-xs text-red-500">{errors.photos}</p>}
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -452,11 +477,19 @@ export default function ListCarPage() {
             </div>
           )}
 
+          {/* API error banner */}
+          {submitError && (
+            <div className="mx-0 mt-4 bg-red-50 border border-red-200 rounded-xl px-4 py-3 flex items-start gap-2.5">
+              <span className="text-red-500 mt-0.5 shrink-0">⚠️</span>
+              <p className="text-sm text-red-700">{submitError}</p>
+            </div>
+          )}
+
           {/* Navigation buttons */}
           <div className="flex justify-between mt-10 pt-6 border-t border-slate-100">
             <button
               onClick={back}
-              disabled={step === 1}
+              disabled={step === 1 || submitting}
               className="flex items-center gap-2 text-slate-500 hover:text-slate-800 text-sm font-medium disabled:opacity-30 transition-colors"
             >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2.5">
@@ -478,14 +511,27 @@ export default function ListCarPage() {
               </Button>
             ) : (
               <Button
-                onClick={() => setSubmitted(true)}
-                className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white px-8"
+                onClick={submitListing}
+                disabled={submitting}
+                className="rounded-full bg-emerald-600 hover:bg-emerald-700 text-white px-8 disabled:opacity-60"
                 id="list-car-submit"
               >
-                Submit listing
-                <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
-                  <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
+                {submitting ? (
+                  <>
+                    <svg className="w-4 h-4 mr-2 animate-spin" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                    </svg>
+                    Submitting…
+                  </>
+                ) : (
+                  <>
+                    Submit listing
+                    <svg className="w-4 h-4 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                  </>
+                )}
               </Button>
             )}
           </div>

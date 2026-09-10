@@ -51,6 +51,7 @@ function AccountPageInner() {
     listings, loadingListings,
     setLiveAvatar,
     displayName, displayEmail, avatarSrc,
+    justSubmitted,
   } = useAccountPage();
 
   return (
@@ -171,6 +172,20 @@ function AccountPageInner() {
                     Add a car
                   </Link>
                 </div>
+
+                {/* "Under review" banner — shown after redirect from /list-car */}
+                {justSubmitted && (
+                  <div className="mb-6 flex items-start gap-3 bg-amber-50 border border-amber-200 rounded-2xl px-5 py-4">
+                    <span className="text-2xl mt-0.5">🎉</span>
+                    <div>
+                      <p className="font-semibold text-amber-800">Listing submitted — under review</p>
+                      <p className="text-sm text-amber-700 mt-0.5">
+                        Your car has been received and is being reviewed by our team. This typically takes under 24 hours.
+                        You&apos;ll see the status change to <strong>Active</strong> once approved.
+                      </p>
+                    </div>
+                  </div>
+                )}
 
                 {loadingListings ? (
                   <div className="space-y-4">

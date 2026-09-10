@@ -3,6 +3,8 @@
 // app.ts imports this file and mounts each router at its base path.
 // ---------------------------------------------------------------------------
 
-export { default as userRoutes } from "./user.routes";
+export { default as userRoutes }    from "./user.routes";
 export { default as vehicleRoutes } from "./vehicle.routes";
+export { default as bookingRoutes } from "./booking.routes";
+export { default as adminRoutes }   from "./admin.routes";
 

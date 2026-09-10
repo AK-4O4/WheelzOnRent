@@ -5,7 +5,7 @@ import helmet from "helmet";
 
 import { env } from "./config/env.ts";
 import { errorHandler } from "./middleware/errorHandler.middleware.ts";
-import { userRoutes, vehicleRoutes } from "./routes";
+import { userRoutes, vehicleRoutes, bookingRoutes, adminRoutes } from "./routes";
 
 export const app = express();
 
@@ -86,11 +86,8 @@ app.get("/health", (_req, res) => {
 // ---------------------------------------------------------------------------
 app.use("/api/users",    userRoutes);
 app.use("/api/vehicles", vehicleRoutes);
-
-// Add new routers here as you build them out:
-// app.use('/api/bookings', bookingRoutes);
-// app.use('/api/reviews',  reviewRoutes);
-// app.use('/api/messages', messageRoutes);
+app.use("/api/bookings", bookingRoutes);
+app.use("/api/admin",    adminRoutes);
 
 // ---------------------------------------------------------------------------
 // Global error handler

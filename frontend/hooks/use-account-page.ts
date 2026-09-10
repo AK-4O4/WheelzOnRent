@@ -19,6 +19,7 @@ export function useAccountPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const initialTab = searchParams?.get("tab") ?? "profile";
+  const justSubmitted = searchParams?.get("submitted") === "1";
 
   const [activeTab, setActiveTab] = useState<AccountTabId>(
     ACCOUNT_TABS.find((t) => t.id === initialTab) ? (initialTab as AccountTabId) : "profile"
@@ -107,5 +108,7 @@ export function useAccountPage() {
     liveAvatar, setLiveAvatar,
     // Derived
     displayName, displayEmail, avatarSrc,
+    // Flags
+    justSubmitted,
   };
 }

@@ -41,7 +41,6 @@ import { DriversScreen } from '@/components/dash/drivers-screen'
 import { PaymentsScreen } from '@/components/dash/payments-screen'
 import { ExpensesScreen } from '@/components/dash/expenses-screen'
 import { CalendarScreen } from '@/components/dash/calendar-screen'
-import { TrackingScreen } from '@/components/dash/tracking-screen'
 import { MessagesScreen } from '@/components/dash/messages-screen'
 
 // ─── Hardcoded admin user — replace with real auth session when ready ─────────
@@ -57,16 +56,15 @@ const ADMIN_USER = {
 
 const SCREEN_TITLES: Record<Screen, string> = {
   dashboard: 'Dashboard',
-  bookings: 'Bookings',
-  units: 'Units',
-  unitDetail: 'Unit Details',
-  calendar: 'Calendar',
-  clients: 'Clients',
-  drivers: 'Drivers',
-  payments: 'Payments',
-  expenses: 'Expenses',
-  tracking: 'Tracking',
-  messages: 'Messages',
+  bookings:  'Bookings',
+  units:     'Units',
+  unitDetail:'Unit Details',
+  calendar:  'Calendar',
+  clients:   'Clients',
+  drivers:   'Drivers',
+  payments:  'Payments',
+  expenses:  'Expenses',
+  messages:  'Messages',
 }
 
 // ─── Nav items ────────────────────────────────────────────────────────────────
@@ -75,15 +73,14 @@ interface NavItem { key: Screen; label: string; Icon: React.FC<{ className?: str
 
 const NAV_ITEMS: NavItem[] = [
   { key: 'dashboard', label: 'Dashboard', Icon: ({ className }) => <GridIcon className={className} size={16} /> },
-  { key: 'bookings', label: 'Bookings', Icon: ({ className }) => <CalendarIcon className={className} size={16} /> },
-  { key: 'units', label: 'Units', Icon: ({ className }) => <CarIcon className={className} size={16} /> },
-  { key: 'calendar', label: 'Calendar', Icon: ({ className }) => <CalendarIcon className={className} size={16} /> },
-  { key: 'clients', label: 'Clients', Icon: ({ className }) => <UsersIcon className={className} size={16} /> },
-  { key: 'drivers', label: 'Drivers', Icon: ({ className }) => <UserCircleIcon className={className} size={16} /> },
-  { key: 'payments', label: 'Payments', Icon: ({ className }) => <CreditCardIcon className={className} size={16} /> },
-  { key: 'expenses', label: 'Expenses', Icon: ({ className }) => <DollarIcon className={className} size={16} /> },
-  { key: 'tracking', label: 'Tracking', Icon: ({ className }) => <MapPinIcon className={className} size={16} /> },
-  { key: 'messages', label: 'Messages', Icon: ({ className }) => <ChatIcon className={className} size={16} /> },
+  { key: 'bookings',  label: 'Bookings',  Icon: ({ className }) => <CalendarIcon className={className} size={16} /> },
+  { key: 'units',     label: 'Units',     Icon: ({ className }) => <CarIcon className={className} size={16} /> },
+  { key: 'calendar',  label: 'Calendar',  Icon: ({ className }) => <CalendarIcon className={className} size={16} /> },
+  { key: 'clients',   label: 'Clients',   Icon: ({ className }) => <UsersIcon className={className} size={16} /> },
+  { key: 'drivers',   label: 'Drivers',   Icon: ({ className }) => <UserCircleIcon className={className} size={16} /> },
+  { key: 'payments',  label: 'Payments',  Icon: ({ className }) => <CreditCardIcon className={className} size={16} /> },
+  { key: 'expenses',  label: 'Expenses',  Icon: ({ className }) => <DollarIcon className={className} size={16} /> },
+  { key: 'messages',  label: 'Messages',  Icon: ({ className }) => <ChatIcon className={className} size={16} /> },
 ]
 
 // ─── Application shell ────────────────────────────────────────────────────────
@@ -204,17 +201,16 @@ const ApplicationShell = () => {
 
           {/* ── Screen content ── */}
           <main className='flex-1 bg-[#f4f5f7]'>
-            {screen === 'dashboard' && <DashboardScreen onBookings={() => go('bookings')} />}
-            {screen === 'bookings' && <BookingsScreen />}
-            {screen === 'units' && <UnitsScreen onDetail={() => go('unitDetail')} />}
+            {screen === 'dashboard'  && <DashboardScreen onBookings={() => go('bookings')} />}
+            {screen === 'bookings'   && <BookingsScreen />}
+            {screen === 'units'      && <UnitsScreen onDetail={() => go('unitDetail')} />}
             {screen === 'unitDetail' && <UnitDetailScreen onBack={() => go('units')} />}
-            {screen === 'clients' && <ClientsScreen />}
-            {screen === 'drivers' && <DriversScreen />}
-            {screen === 'payments' && <PaymentsScreen />}
-            {screen === 'expenses' && <ExpensesScreen />}
-            {screen === 'calendar' && <CalendarScreen />}
-            {screen === 'tracking' && <TrackingScreen />}
-            {screen === 'messages' && <MessagesScreen />}
+            {screen === 'clients'    && <ClientsScreen />}
+            {screen === 'drivers'    && <DriversScreen />}
+            {screen === 'payments'   && <PaymentsScreen />}
+            {screen === 'expenses'   && <ExpensesScreen />}
+            {screen === 'calendar'   && <CalendarScreen />}
+            {screen === 'messages'   && <MessagesScreen />}
           </main>
         </div>
       </SidebarProvider>
